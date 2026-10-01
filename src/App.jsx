@@ -1,5 +1,3 @@
-import React from 'react';
-
 const App = () => {
   const skills = [
     { category: "Frontend", items: ["React", "JavaScript (ES6+)", "Tailwind CSS", "HTML/CSS"] },
@@ -50,10 +48,10 @@ const App = () => {
       <section id="about" className="pt-32 pb-20 px-6">
         <div className="max-w-5xl mx-auto mt-16">
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 mb-6">
-            Hi, I'm <span className="text-blue-600">Muhammad Azfar Qadri.</span>
+            Hi, I&apos;m <span className="text-blue-600">Muhammad Azfar Qadri.</span>
           </h1>
           <p className="text-xl md:text-2xl text-slate-600 max-w-2xl leading-relaxed mb-10">
-            I am a full-stack developer who builds fast, responsive frontends and robust database-driven backends. 
+            I am a full-stack developer who builds fast, responsive frontends and robust database-driven backends.
           </p>
           <div className="flex space-x-4">
             <a href="#projects" className="bg-slate-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-slate-800 transition-colors">
@@ -121,7 +119,7 @@ const App = () => {
       {/* Footer / Contact */}
       <section id="contact" className="py-20 bg-slate-900 text-white px-6">
         <div className="max-w-5xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-6">Let's build something.</h2>
+          <h2 className="text-3xl font-bold mb-6">Let&apos;s build something.</h2>
           <p className="text-slate-400 mb-8 max-w-lg mx-auto">
             Currently looking for new opportunities. Whether you have a question or just want to say hi, my inbox is always open.
           </p>
