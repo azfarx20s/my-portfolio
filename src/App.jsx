@@ -1,3 +1,5 @@
+import { KageLandingPage } from "@designcodeio/threeui";
+
 const App = () => {
   const skills = [
     { category: "Frontend", items: ["React", "JavaScript (ES6+)", "Tailwind CSS", "HTML/CSS"] },
@@ -45,19 +47,26 @@ const App = () => {
       </nav>
 
       {/* Hero Section */}
-      <section id="about" className="pt-32 pb-20 px-6">
-        <div className="max-w-5xl mx-auto mt-16">
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 mb-6">
+      <section id="about" className="relative pt-32 pb-20 px-6 overflow-hidden min-h-[80vh] flex items-center">
+        
+        {/* ThreeUI Kage Background */}
+        <div className="absolute inset-0 z-0 opacity-80 pointer-events-none">
+          <KageLandingPage />
+        </div>
+
+        {/* Hero Content (Floating above the 3D background) */}
+        <div className="relative z-10 max-w-5xl mx-auto">
+          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 mb-6 drop-shadow-md">
             Hi, I&apos;m <span className="text-blue-600">Muhammad Azfar Qadri.</span>
           </h1>
-          <p className="text-xl md:text-2xl text-slate-600 max-w-2xl leading-relaxed mb-10">
+          <p className="text-xl md:text-2xl text-slate-800 max-w-2xl leading-relaxed mb-10 font-medium drop-shadow-sm">
             I am a full-stack developer who builds fast, responsive frontends and robust database-driven backends.
           </p>
           <div className="flex space-x-4">
-            <a href="#projects" className="bg-slate-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-slate-800 transition-colors">
+            <a href="#projects" className="bg-slate-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-slate-800 transition-colors shadow-lg">
               View My Work
             </a>
-            <a href="https://github.com" target="_blank" rel="noreferrer" className="px-6 py-3 rounded-lg font-medium border border-slate-300 hover:border-slate-400 hover:bg-slate-100 transition-colors">
+            <a href="https://github.com/AzfarQadri" target="_blank" rel="noreferrer" className="px-6 py-3 rounded-lg font-medium border-2 border-slate-900 text-slate-900 bg-white/50 backdrop-blur-sm hover:bg-slate-900 hover:text-white transition-all shadow-sm">
               GitHub Profile
             </a>
           </div>
@@ -65,12 +74,12 @@ const App = () => {
       </section>
 
       {/* Skills Section */}
-      <section id="skills" className="py-20 bg-white border-y border-slate-200 px-6">
+      <section id="skills" className="py-20 bg-white border-y border-slate-200 px-6 relative z-10">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold mb-12 text-slate-900">Technical Arsenal</h2>
           <div className="grid md:grid-cols-3 gap-8">
             {skills.map((skillGroup, idx) => (
-              <div key={idx} className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+              <div key={idx} className="p-6 bg-slate-50 rounded-2xl border border-slate-100 shadow-sm">
                 <h3 className="text-lg font-semibold text-blue-600 mb-4">{skillGroup.category}</h3>
                 <ul className="space-y-3">
                   {skillGroup.items.map((item, i) => (
@@ -87,7 +96,7 @@ const App = () => {
       </section>
 
       {/* Projects Section */}
-      <section id="projects" className="py-20 px-6">
+      <section id="projects" className="py-20 px-6 relative z-10 bg-slate-50">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl font-bold mb-12 text-slate-900">Featured Projects</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -117,19 +126,19 @@ const App = () => {
       </section>
 
       {/* Footer / Contact */}
-      <section id="contact" className="py-20 bg-slate-900 text-white px-6">
+      <section id="contact" className="py-20 bg-slate-900 text-white px-6 relative z-10">
         <div className="max-w-5xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-6">Let&apos;s build something.</h2>
           <p className="text-slate-400 mb-8 max-w-lg mx-auto">
             Currently looking for new opportunities. Whether you have a question or just want to say hi, my inbox is always open.
           </p>
-          <a href="mailto:your.email@example.com" className="inline-block bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-500 transition-colors mb-16">
+          <a href="mailto:your.email@example.com" className="inline-block bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-500 transition-colors mb-16 shadow-lg">
             Send me an email
           </a>
           
           <div className="flex justify-center space-x-6 text-slate-400">
             <a href="#" className="hover:text-white transition-colors">LinkedIn</a>
-            <a href="#" className="hover:text-white transition-colors">GitHub</a>
+            <a href="https://github.com/AzfarQadri" target="_blank" rel="noreferrer" className="hover:text-white transition-colors">GitHub</a>
           </div>
         </div>
       </section>
