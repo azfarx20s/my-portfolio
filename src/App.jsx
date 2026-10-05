@@ -95,30 +95,42 @@ const App = () => {
           </motion.p>
           
           <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.15 }}
-            className="flex flex-wrap gap-4"
-          >
-            <motion.a 
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              href="#projects" 
-              className="bg-blue-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-blue-500 transition-colors shadow-lg shadow-blue-600/30"
-            >
-              View My Work
-            </motion.a>
-            <motion.a 
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              href="https://github.com/azfarx20s" 
-              target="_blank" 
-              rel="noreferrer" 
-              className="px-6 py-3 rounded-xl font-medium border border-slate-800 text-slate-300 bg-slate-900/50 hover:bg-slate-800 hover:text-white transition-all shadow-sm"
-            >
-              GitHub Profile
-            </motion.a>
-          </motion.div>
+  initial={{ opacity: 0, y: 10 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.3, delay: 0.15 }}
+  className="flex flex-wrap gap-4"
+>
+  <motion.a 
+    whileHover={{ scale: 1.02 }}
+    whileTap={{ scale: 0.98 }}
+    href="#projects" 
+    className="bg-blue-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-blue-500 transition-colors shadow-lg shadow-blue-600/30"
+  >
+    View My Work
+  </motion.a>
+  
+  <motion.a 
+    whileHover={{ scale: 1.02 }}
+    whileTap={{ scale: 0.98 }}
+    href="/cv.html" 
+    target="_blank" 
+    rel="noreferrer" 
+    className="px-6 py-3 rounded-xl font-medium border border-blue-500/30 text-blue-400 bg-blue-950/30 hover:bg-blue-900/40 hover:text-white transition-all shadow-sm"
+  >
+    View CV
+  </motion.a>
+
+  <motion.a 
+    whileHover={{ scale: 1.02 }}
+    whileTap={{ scale: 0.98 }}
+    href="https://github.com/azfarx20s" 
+    target="_blank" 
+    rel="noreferrer" 
+    className="px-6 py-3 rounded-xl font-medium border border-slate-800 text-slate-300 bg-slate-900/50 hover:bg-slate-800 hover:text-white transition-all shadow-sm"
+  >
+    GitHub Profile
+  </motion.a>
+</motion.div>
         </div>
       </section>
 
