@@ -50,8 +50,58 @@ const SpotlightCard = ({ children, className = "", onClick }) => {
   );
 };
 
+// --- Interactive Project Demo Widget ---
+const FacultyPortalDemo = () => {
+  const [role, setRole] = useState("Faculty");
+
+  const permissions = {
+    Admin: ["Manage Faculty Accounts", "Access Facility Dashboards", "Edit Department Directories", "System Audit Logs"],
+    Faculty: ["Access Facility Dashboards", "View Department Directories", "Update Personal Profile"],
+    Student: ["View Department Directories", "Course Catalog Access"]
+  };
+
+  return (
+    <div className="mt-4 p-4 rounded-xl bg-slate-950/80 border border-slate-800 text-xs text-slate-300 space-y-3">
+      <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+        <span className="font-semibold text-blue-400">⚡ Live Access Simulator</span>
+        <span className="text-[10px] text-emerald-400 bg-emerald-950/50 border border-emerald-800/50 px-2 py-0.5 rounded-full">Interactive</span>
+      </div>
+      <div>
+        <p className="text-slate-400 mb-2">Select User Role:</p>
+        <div className="flex gap-2">
+          {["Admin", "Faculty", "Student"].map((r) => (
+            <button
+              key={r}
+              onClick={() => setRole(r)}
+              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
+                role === r
+                  ? "bg-blue-600 text-white shadow-sm shadow-blue-600/50"
+                  : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              {r}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div>
+        <p className="text-slate-400 mb-1">Granted Permissions:</p>
+        <ul className="space-y-1">
+          {permissions[role].map((perm, i) => (
+            <li key={i} className="flex items-center text-slate-300">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2"></span>
+              {perm}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+};
+
 const App = () => {
   const [activeFilter, setActiveFilter] = useState("All");
+  const [activeDemo, setActiveDemo] = useState(null);
 
   const filterCategories = ["All", "Frontend", "Backend", "Tools"];
 
@@ -78,25 +128,31 @@ const App = () => {
 
   const projects = [
     {
+      id: "faculty-portal",
       title: "Faculty Web Portal",
       description: "A dynamic, database-driven application featuring role-based access control, facility dashboards, and a modern card-based UI.",
       tech: ["PHP", "MySQL", "CSS"],
       category: "Backend",
-      link: "https://github.com/azfarx20s"
+      link: "https://github.com/azfarx20s",
+      hasDemo: true
     },
     {
+      id: "campus-connect",
       title: "CampusConnect",
       description: "A modern frontend interface built with a component-driven architecture to manage and display weekly project deliverables.",
       tech: ["React", "Vite", "Tailwind CSS"],
       category: "Frontend",
-      link: "https://github.com/azfarx20s"
+      link: "https://github.com/azfarx20s",
+      hasDemo: false
     },
     {
+      id: "stopwatch",
       title: "Real-Time Stopwatch",
       description: "A lightweight, precision web utility handling asynchronous state for start, pause, and reset time-tracking functionality.",
       tech: ["JavaScript", "HTML", "CSS"],
       category: "Frontend",
-      link: "https://github.com/azfarx20s"
+      link: "https://github.com/azfarx20s",
+      hasDemo: false
     }
   ];
 
@@ -156,7 +212,7 @@ const App = () => {
             animate="visible"
             className="text-5xl md:text-7xl font-extrabold tracking-tight text-white mb-6"
           >
-            Hi, I&apos;m <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">Azfar.</span>
+            Hi, I&apos;m <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">Muhammad Azfar Qadri.</span>
           </motion.h1>
           
           <motion.p 
@@ -281,7 +337,7 @@ const App = () => {
           </motion.h2>
           <motion.div layout className="grid md:grid-cols-3 gap-8">
             <AnimatePresence>
-              {filteredSkills.map((skillGroup, idx) => (
+              {filteredSkills.map((skillGroup) => (
                 <motion.div 
                   layout
                   initial={{ opacity: 0, scale: 0.95 }}
@@ -333,12 +389,34 @@ const App = () => {
                 >
                   <SpotlightCard className="p-8 h-full">
                     <div>
-                      <h3 className="text-xl font-bold mb-3 text-white">{project.title}</h3>
-                      <p className="text-slate-400 mb-6 leading-relaxed text-sm">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="text-xl font-bold text-white">{project.title}</h3>
+                        {project.hasDemo && (
+                          <button
+                            onClick={() => setActiveDemo(activeDemo === project.id ? null : project.id)}
+                            className="text-xs font-medium text-blue-400 bg-blue-950/60 border border-blue-800/50 px-2.5 py-1 rounded-md hover:bg-blue-900/60 transition-colors flex items-center gap-1"
+                          >
+                            {activeDemo === project.id ? "Hide Demo ✕" : "Try Demo ⚡"}
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-slate-400 mb-4 leading-relaxed text-sm">
                         {project.description}
                       </p>
+
+                      {/* Expandable Demo Box */}
+                      {project.hasDemo && activeDemo === project.id && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.25 }}
+                        >
+                          <FacultyPortalDemo />
+                        </motion.div>
+                      )}
                     </div>
-                    <div>
+                    <div className="mt-6">
                       <div className="flex flex-wrap gap-2 mb-6">
                         {project.tech.map((tech, i) => (
                           <span key={i} className="text-xs font-semibold bg-blue-950 text-blue-300 border border-blue-800/50 px-3 py-1 rounded-full">
