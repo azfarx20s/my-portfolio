@@ -1,10 +1,64 @@
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+
+// --- Custom Component: Card with Radial Spotlight Glow ---
+const SpotlightCard = ({ children, className = "", onClick }) => {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMousePosition({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+  };
+
+  return (
+    <div
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={onClick}
+      className={`relative rounded-2xl border border-slate-800 bg-slate-900 overflow-hidden transform-gpu transition-all duration-300 ${className}`}
+    >
+      {/* Spotlight Radial Background Glow */}
+      <div
+        className="pointer-events-none absolute -inset-px transition-opacity duration-300"
+        style={{
+          opacity: isHovered ? 1 : 0,
+          background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(59, 130, 246, 0.15), transparent 80%)`,
+        }}
+      />
+      
+      {/* Border Highlight Effect */}
+      <div
+        className="pointer-events-none absolute -inset-px rounded-2xl transition-opacity duration-300"
+        style={{
+          opacity: isHovered ? 1 : 0,
+          background: `radial-gradient(400px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(59, 130, 246, 0.4), transparent 80%)`,
+          maskImage: "linear-gradient(black, black) content-box, linear-gradient(black, black)",
+          maskComposite: "exclude",
+          WebkitMaskComposite: "xor",
+          padding: "1px",
+        }}
+      />
+
+      {/* Content wrapper */}
+      <div className="relative z-10 h-full flex flex-col justify-between">{children}</div>
+    </div>
+  );
+};
 
 const App = () => {
+  const [activeFilter, setActiveFilter] = useState("All");
+
+  const filterCategories = ["All", "Frontend", "Backend", "Tools"];
+
   const skills = [
     { category: "Frontend", items: ["React", "JavaScript (ES6+)", "Tailwind CSS", "HTML/CSS"] },
     { category: "Backend", items: ["PHP", "MySQL", "Java", "RESTful APIs"] },
-    { category: "Tools & Environment", items: ["Git & GitHub", "VS Code", "XAMPP", "Command Line"] }
+    { category: "Tools", items: ["Git & GitHub", "VS Code", "XAMPP", "Command Line"] }
   ];
 
   const experiences = [
@@ -27,30 +81,50 @@ const App = () => {
       title: "Faculty Web Portal",
       description: "A dynamic, database-driven application featuring role-based access control, facility dashboards, and a modern card-based UI.",
       tech: ["PHP", "MySQL", "CSS"],
+      category: "Backend",
       link: "https://github.com/azfarx20s"
     },
     {
       title: "CampusConnect",
       description: "A modern frontend interface built with a component-driven architecture to manage and display weekly project deliverables.",
       tech: ["React", "Vite", "Tailwind CSS"],
+      category: "Frontend",
       link: "https://github.com/azfarx20s"
     },
     {
       title: "Real-Time Stopwatch",
       description: "A lightweight, precision web utility handling asynchronous state for start, pause, and reset time-tracking functionality.",
       tech: ["JavaScript", "HTML", "CSS"],
+      category: "Frontend",
       link: "https://github.com/azfarx20s"
     }
   ];
 
+  const filteredSkills = activeFilter === "All" 
+    ? skills 
+    : skills.filter((s) => s.category.toLowerCase() === activeFilter.toLowerCase());
+
+  const filteredProjects = activeFilter === "All" 
+    ? projects 
+    : projects.filter((p) => p.category.toLowerCase() === activeFilter.toLowerCase() || p.tech.some(t => t.toLowerCase().includes(activeFilter.toLowerCase())));
+
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 12 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.35, ease: [0.25, 0.1, 0.25, 1.0] }
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-blue-500 selection:text-white overflow-x-hidden">
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-blue-500 selection:text-white overflow-x-hidden antialiased">
       
       {/* Navigation */}
       <motion.nav 
-        initial={{ y: -15, opacity: 0 }}
+        initial={{ y: -10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.25 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
         className="fixed w-full bg-slate-950/80 backdrop-blur-md z-50 border-b border-slate-800/80"
       >
         <div className="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
@@ -77,60 +151,58 @@ const App = () => {
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-blue-600/10 blur-[100px] rounded-full pointer-events-none"></div>
         <div className="max-w-5xl mx-auto mt-16 relative z-10">
           <motion.h1 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.05 }}
+            variants={fadeInUp}
+            initial="hidden"
+            animate="visible"
             className="text-5xl md:text-7xl font-extrabold tracking-tight text-white mb-6"
           >
-            Hi, I&apos;m <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">Muhammad Azfar Qadri.</span>
+            Hi, I&apos;m <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">Azfar.</span>
           </motion.h1>
           
           <motion.p 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.1 }}
+            variants={fadeInUp}
+            initial="hidden"
+            animate="visible"
             className="text-xl md:text-2xl text-slate-400 max-w-2xl leading-relaxed mb-10"
           >
             Software Engineering student at the University of Sindh. Passionate about building full-stack web applications, dynamic faculty portals, and modern interactive interfaces.
           </motion.p>
           
           <motion.div 
-  initial={{ opacity: 0, y: 10 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.3, delay: 0.15 }}
-  className="flex flex-wrap gap-4"
->
-  <motion.a 
-    whileHover={{ scale: 1.02 }}
-    whileTap={{ scale: 0.98 }}
-    href="#projects" 
-    className="bg-blue-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-blue-500 transition-colors shadow-lg shadow-blue-600/30"
-  >
-    View My Work
-  </motion.a>
-  
-  <motion.a 
-    whileHover={{ scale: 1.02 }}
-    whileTap={{ scale: 0.98 }}
-    href="/cv.html" 
-    target="_blank" 
-    rel="noreferrer" 
-    className="px-6 py-3 rounded-xl font-medium border border-blue-500/30 text-blue-400 bg-blue-950/30 hover:bg-blue-900/40 hover:text-white transition-all shadow-sm"
-  >
-    View CV
-  </motion.a>
-
-  <motion.a 
-    whileHover={{ scale: 1.02 }}
-    whileTap={{ scale: 0.98 }}
-    href="https://github.com/azfarx20s" 
-    target="_blank" 
-    rel="noreferrer" 
-    className="px-6 py-3 rounded-xl font-medium border border-slate-800 text-slate-300 bg-slate-900/50 hover:bg-slate-800 hover:text-white transition-all shadow-sm"
-  >
-    GitHub Profile
-  </motion.a>
-</motion.div>
+            variants={fadeInUp}
+            initial="hidden"
+            animate="visible"
+            className="flex flex-wrap gap-4"
+          >
+            <motion.a 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              href="#projects" 
+              className="bg-blue-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-blue-500 transition-colors shadow-lg shadow-blue-600/30"
+            >
+              View My Work
+            </motion.a>
+            <motion.a 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              href="/cv.html" 
+              target="_blank" 
+              rel="noreferrer" 
+              className="px-6 py-3 rounded-xl font-medium border border-blue-500/30 text-blue-400 bg-blue-950/30 hover:bg-blue-900/40 hover:text-white transition-all shadow-sm"
+            >
+              View CV
+            </motion.a>
+            <motion.a 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              href="https://github.com/azfarx20s" 
+              target="_blank" 
+              rel="noreferrer" 
+              className="px-6 py-3 rounded-xl font-medium border border-slate-800 text-slate-300 bg-slate-900/50 hover:bg-slate-800 hover:text-white transition-all shadow-sm"
+            >
+              GitHub Profile
+            </motion.a>
+          </motion.div>
         </div>
       </section>
 
@@ -138,10 +210,10 @@ const App = () => {
       <section id="experience" className="py-20 px-6">
         <div className="max-w-5xl mx-auto">
           <motion.h2 
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.25 }}
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
             className="text-3xl font-bold mb-12 text-white"
           >
             Experience & Education
@@ -150,58 +222,89 @@ const App = () => {
             {experiences.map((exp, idx) => (
               <motion.div 
                 key={idx}
-                initial={{ opacity: 0, x: -10 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.25, delay: idx * 0.05 }}
-                className="relative bg-slate-900/60 p-6 rounded-2xl border border-slate-800/80 shadow-lg hover:border-slate-700 transition-all"
+                variants={fadeInUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-50px" }}
               >
-                <div className="absolute -left-[35px] top-6 w-4 h-4 rounded-full bg-blue-600 border-4 border-slate-950"></div>
-                <span className="text-xs font-semibold text-blue-400 tracking-wider uppercase mb-1 block">{exp.period}</span>
-                <h3 className="text-xl font-bold text-white mb-1">{exp.role}</h3>
-                <h4 className="text-sm font-medium text-slate-300 mb-3">{exp.organization}</h4>
-                <p className="text-slate-400 text-sm leading-relaxed">{exp.description}</p>
+                <SpotlightCard className="p-6">
+                  <div className="absolute -left-[35px] top-6 w-4 h-4 rounded-full bg-blue-600 border-4 border-slate-950"></div>
+                  <span className="text-xs font-semibold text-blue-400 tracking-wider uppercase mb-1 block">{exp.period}</span>
+                  <h3 className="text-xl font-bold text-white mb-1">{exp.role}</h3>
+                  <h4 className="text-sm font-medium text-slate-300 mb-3">{exp.organization}</h4>
+                  <p className="text-slate-400 text-sm leading-relaxed">{exp.description}</p>
+                </SpotlightCard>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
+      {/* Filter Category Bar */}
+      <section className="pt-10 px-6">
+        <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-center gap-3">
+          <span className="text-xs font-semibold uppercase text-slate-500 mr-2 tracking-wider">Filter View:</span>
+          {filterCategories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setActiveFilter(cat)}
+              className={`relative px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                activeFilter === cat 
+                  ? "text-white" 
+                  : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
+              }`}
+            >
+              {activeFilter === cat && (
+                <motion.div
+                  layoutId="filterTab"
+                  className="absolute inset-0 bg-blue-600/20 border border-blue-500/40 rounded-xl"
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                />
+              )}
+              <span className="relative z-10">{cat}</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
       {/* Skills Section */}
-      <section id="skills" className="py-20 bg-slate-900/50 border-y border-slate-800/60 px-6">
+      <section id="skills" className="py-16 bg-slate-900/40 border-y border-slate-800/60 px-6 my-10">
         <div className="max-w-5xl mx-auto">
           <motion.h2 
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.25 }}
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
             className="text-3xl font-bold mb-12 text-white"
           >
             Technical Arsenal
           </motion.h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            {skills.map((skillGroup, idx) => (
-              <motion.div 
-                key={idx}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.25, delay: idx * 0.05 }}
-                whileHover={{ y: -3 }}
-                className="p-6 bg-slate-900 rounded-2xl border border-slate-800/80 shadow-lg transition-all"
-              >
-                <h3 className="text-lg font-semibold text-blue-400 mb-4">{skillGroup.category}</h3>
-                <ul className="space-y-3">
-                  {skillGroup.items.map((item, i) => (
-                    <li key={i} className="flex items-center text-slate-300 font-medium">
-                      <span className="w-2 h-2 bg-blue-500 rounded-full mr-3 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
-            ))}
-          </div>
+          <motion.div layout className="grid md:grid-cols-3 gap-8">
+            <AnimatePresence>
+              {filteredSkills.map((skillGroup, idx) => (
+                <motion.div 
+                  layout
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.25 }}
+                  key={skillGroup.category}
+                >
+                  <SpotlightCard className="p-6">
+                    <h3 className="text-lg font-semibold text-blue-400 mb-4">{skillGroup.category}</h3>
+                    <ul className="space-y-3">
+                      {skillGroup.items.map((item, i) => (
+                        <li key={i} className="flex items-center text-slate-300 font-medium">
+                          <span className="w-2 h-2 bg-blue-500 rounded-full mr-3 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></span>
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </SpotlightCard>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
         </div>
       </section>
 
@@ -209,45 +312,50 @@ const App = () => {
       <section id="projects" className="py-20 px-6">
         <div className="max-w-5xl mx-auto">
           <motion.h2 
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.25 }}
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
             className="text-3xl font-bold mb-12 text-white"
           >
             Featured Projects
           </motion.h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {projects.map((project, idx) => (
-              <motion.div 
-                key={idx}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.25, delay: idx * 0.05 }}
-                whileHover={{ y: -4 }}
-                className="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-xl hover:border-slate-700 transition-all flex flex-col h-full"
-              >
-                <h3 className="text-xl font-bold mb-3 text-white">{project.title}</h3>
-                <p className="text-slate-400 mb-6 flex-grow leading-relaxed text-sm">
-                  {project.description}
-                </p>
-                <div>
-                  <div className="flex flex-wrap gap-2 mb-6">
-                    {project.tech.map((tech, i) => (
-                      <span key={i} className="text-xs font-semibold bg-blue-950 text-blue-300 border border-blue-800/50 px-3 py-1 rounded-full">
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                  <a href={project.link} target="_blank" rel="noreferrer" className="text-sm font-semibold text-slate-200 hover:text-blue-400 flex items-center group">
-                    View Source 
-                    <span className="ml-1 group-hover:translate-x-1 transition-transform">→</span>
-                  </a>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+          <motion.div layout className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <AnimatePresence>
+              {filteredProjects.map((project) => (
+                <motion.div 
+                  layout
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.25 }}
+                  key={project.title}
+                >
+                  <SpotlightCard className="p-8 h-full">
+                    <div>
+                      <h3 className="text-xl font-bold mb-3 text-white">{project.title}</h3>
+                      <p className="text-slate-400 mb-6 leading-relaxed text-sm">
+                        {project.description}
+                      </p>
+                    </div>
+                    <div>
+                      <div className="flex flex-wrap gap-2 mb-6">
+                        {project.tech.map((tech, i) => (
+                          <span key={i} className="text-xs font-semibold bg-blue-950 text-blue-300 border border-blue-800/50 px-3 py-1 rounded-full">
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                      <a href={project.link} target="_blank" rel="noreferrer" className="text-sm font-semibold text-slate-200 hover:text-blue-400 flex items-center group">
+                        View Source 
+                        <span className="ml-1 group-hover:translate-x-1 transition-transform">→</span>
+                      </a>
+                    </div>
+                  </SpotlightCard>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
         </div>
       </section>
 
@@ -255,19 +363,19 @@ const App = () => {
       <section id="contact" className="py-20 bg-slate-900/80 border-t border-slate-800 px-6">
         <div className="max-w-5xl mx-auto text-center">
           <motion.h2 
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.25 }}
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
             className="text-3xl font-bold mb-6 text-white"
           >
             Let&apos;s build something.
           </motion.h2>
           <motion.p 
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.25, delay: 0.05 }}
+            variants={fadeInUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
             className="text-slate-400 mb-8 max-w-lg mx-auto"
           >
             Currently looking for new opportunities. Whether you have a question or just want to say hi, my inbox is always open.
