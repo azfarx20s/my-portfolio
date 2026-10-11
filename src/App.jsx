@@ -212,7 +212,7 @@ const App = () => {
             animate="visible"
             className="text-5xl md:text-7xl font-extrabold tracking-tight text-white mb-6"
           >
-            Hi, I&apos;m <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">Muhammad Azfar Qadri.</span>
+            Hi, I&apos;m <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">Azfar.</span>
           </motion.h1>
           
           <motion.p 
