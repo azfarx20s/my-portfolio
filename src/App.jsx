@@ -1,477 +1,381 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useEffect, useRef } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-// --- Custom Component: Card with Radial Spotlight Glow ---
-const SpotlightCard = ({ children, className = "", onClick }) => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isHovered, setIsHovered] = useState(false);
-
-  const handleMouseMove = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setMousePosition({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    });
-  };
-
-  return (
-    <div
-      onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onClick={onClick}
-      className={`relative rounded-2xl border border-slate-800 bg-slate-900 overflow-hidden transform-gpu transition-all duration-300 ${className}`}
-    >
-      {/* Spotlight Radial Background Glow */}
-      <div
-        className="pointer-events-none absolute -inset-px transition-opacity duration-300"
-        style={{
-          opacity: isHovered ? 1 : 0,
-          background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(59, 130, 246, 0.15), transparent 80%)`,
-        }}
-      />
-      
-      {/* Border Highlight Effect */}
-      <div
-        className="pointer-events-none absolute -inset-px rounded-2xl transition-opacity duration-300"
-        style={{
-          opacity: isHovered ? 1 : 0,
-          background: `radial-gradient(400px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(59, 130, 246, 0.4), transparent 80%)`,
-          maskImage: "linear-gradient(black, black) content-box, linear-gradient(black, black)",
-          maskComposite: "exclude",
-          WebkitMaskComposite: "xor",
-          padding: "1px",
-        }}
-      />
-
-      {/* Content wrapper */}
-      <div className="relative z-10 h-full flex flex-col justify-between">{children}</div>
-    </div>
-  );
-};
-
-// --- Interactive Project Demo Widget ---
-const FacultyPortalDemo = () => {
-  const [role, setRole] = useState("Faculty");
-
-  const permissions = {
-    Admin: ["Manage Faculty Accounts", "Access Facility Dashboards", "Edit Department Directories", "System Audit Logs"],
-    Faculty: ["Access Facility Dashboards", "View Department Directories", "Update Personal Profile"],
-    Student: ["View Department Directories", "Course Catalog Access"]
-  };
-
-  return (
-    <div className="mt-4 p-4 rounded-xl bg-slate-950/80 border border-slate-800 text-xs text-slate-300 space-y-3">
-      <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-        <span className="font-semibold text-blue-400">⚡ Live Access Simulator</span>
-        <span className="text-[10px] text-emerald-400 bg-emerald-950/50 border border-emerald-800/50 px-2 py-0.5 rounded-full">Interactive</span>
-      </div>
-      <div>
-        <p className="text-slate-400 mb-2">Select User Role:</p>
-        <div className="flex gap-2">
-          {["Admin", "Faculty", "Student"].map((r) => (
-            <button
-              key={r}
-              onClick={() => setRole(r)}
-              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
-                role === r
-                  ? "bg-blue-600 text-white shadow-sm shadow-blue-600/50"
-                  : "bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200"
-              }`}
-            >
-              {r}
-            </button>
-          ))}
-        </div>
-      </div>
-      <div>
-        <p className="text-slate-400 mb-1">Granted Permissions:</p>
-        <ul className="space-y-1">
-          {permissions[role].map((perm, i) => (
-            <li key={i} className="flex items-center text-slate-300">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2"></span>
-              {perm}
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  );
-};
+gsap.registerPlugin(ScrollTrigger);
 
 const App = () => {
-  const [activeFilter, setActiveFilter] = useState("All");
-  const [activeDemo, setActiveDemo] = useState(null);
-
-  const filterCategories = ["All", "Frontend", "Backend", "Tools"];
+  const appRef = useRef(null);
 
   const skills = [
-    { category: "Frontend", items: ["React", "JavaScript (ES6+)", "Tailwind CSS", "HTML/CSS"] },
-    { category: "Backend", items: ["PHP", "MySQL", "Java", "RESTful APIs"] },
-    { category: "Tools", items: ["Git & GitHub", "VS Code", "XAMPP", "Command Line"] }
-  ];
-
-  const experiences = [
-    {
-      period: "2026 - Present",
-      role: "Web Development Intern & Project Builder",
-      organization: "CampusConnect & Faculty Web Portal",
-      description: "Developing responsive component-driven frontends with React, Vite, and Tailwind CSS, alongside dynamic database-driven faculty systems built using PHP and MySQL."
-    },
-    {
-      period: "2024 - Present",
-      role: "B.S. Software Engineering",
-      organization: "University of Sindh",
-      description: "Studying core software engineering principles, database systems, web engineering, security, and mobile application development."
-    }
+    { category: "Languages", items: ["JavaScript (ES6+)", "Java", "C++", "Python", "PHP"] },
+    { category: "Frontend", items: ["React.js", "Tailwind CSS", "HTML5", "CSS3"] },
+    { category: "Backend", items: ["MySQL", "RESTful APIs", "Database Architecture", "OpenSSL & Security"] },
+    { category: "Tools", items: ["Git & GitHub", "VS Code", "XAMPP", "Figma"] }
   ];
 
   const projects = [
     {
-      id: "faculty-portal",
+      title: "Campus Connect",
+      role: "Frontend Engineering",
+      desc: "A modern interface utilizing component-driven architecture for university project deliverables. Focuses on clean state management and responsive layouts.",
+      tech: "React, Vite, Tailwind",
+      repo: "https://github.com/azfarx20s/CampusConnect", 
+      demo: "https://campus-connect-flame-two.vercel.app/", 
+      speed: "1.15" 
+    },
+    {
       title: "Faculty Web Portal",
-      description: "A dynamic, database-driven application featuring role-based access control, facility dashboards, and a modern card-based UI.",
-      tech: ["PHP", "MySQL", "CSS"],
-      category: "Backend",
-      link: "https://github.com/azfarx20s",
-      hasDemo: true
-    },
-    {
-      id: "campus-connect",
-      title: "CampusConnect",
-      description: "A modern frontend interface built with a component-driven architecture to manage and display weekly project deliverables.",
-      tech: ["React", "Vite", "Tailwind CSS"],
-      category: "Frontend",
-      link: "https://github.com/azfarx20s",
-      hasDemo: false
-    },
-    {
-      id: "stopwatch",
-      title: "Real-Time Stopwatch",
-      description: "A lightweight, precision web utility handling asynchronous state for start, pause, and reset time-tracking functionality.",
-      tech: ["JavaScript", "HTML", "CSS"],
-      category: "Frontend",
-      link: "https://github.com/azfarx20s",
-      hasDemo: false
+      role: "Full-Stack & Database",
+      desc: "Role-based authentication and faculty management system with dedicated facility dashboards and secure data routing.",
+      tech: "PHP, MySQL, Custom CSS",
+      repo: "https://github.com/azfarx20s/fet-faculty-portal", 
+      demo: "", 
+      speed: "0.85"
     }
   ];
 
-  const filteredSkills = activeFilter === "All" 
-    ? skills 
-    : skills.filter((s) => s.category.toLowerCase() === activeFilter.toLowerCase());
+  const certificates = [
+    { title: "Web Development Internship", issuer: "Zynvex Solutions", link: "https://www.zynvexcert.live/verify/ZYNVEX-CERT-1911" },
+    { title: "Coursera Course Certification", issuer: "Coursera", link: "https://www.coursera.org/account/accomplishments/verify/HW4SMKJ1JP4T" },
+    { title: "Microsoft Learn Achievement 1", issuer: "Microsoft", link: "https://learn.microsoft.com/en-us/users/MuhammadAzfarQadri-4418/achievements/K9KDHNXB?ref=https%3a%2f%2fwww.linkedin.com%2f" },
+    { title: "Microsoft Learn Achievement 2", issuer: "Microsoft", link: "https://learn.microsoft.com/en-us/users/MuhammadAzfarQadri-4418/achievements/NQ8MUKYF?ref=https%3a%2f%2fwww.linkedin.com%2f" },
+    { title: "Life-Global Certification 1", issuer: "Life-Global", link: "https://www.life-global.org/certificate/f51479b1-1250-4c61-bedc-5603d713757e" },
+    { title: "Life-Global Certification 2", issuer: "Life-Global", link: "https://www.life-global.org/certificate/0165f385-b860-4e5b-9be2-808862c8a705" },
+    { title: "AI Bridge Certification", issuer: "AI Bridge IIUI", link: "https://ai-bridge-iiui.vercel.app/verify/AIB-EULYM8V5" },
+    { title: "IdeaGist Certification", issuer: "IdeaGist", link: "https://quiz.ideagist.com/ideagist-certificate?cert_hash=b89f5278fb77ebb9" }
+  ];
 
-  const filteredProjects = activeFilter === "All" 
-    ? projects 
-    : projects.filter((p) => p.category.toLowerCase() === activeFilter.toLowerCase() || p.tech.some(t => t.toLowerCase().includes(activeFilter.toLowerCase())));
-
-  const fadeInUp = {
-    hidden: { opacity: 0, y: 12 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.35, ease: [0.25, 0.1, 0.25, 1.0] }
+  const recommendations = [
+    {
+      name: "Moazzam Azam",
+      designation: "General Operations Manager",
+      organization: "Zynvex Solutions",
+      date: "October 30, 2026",
+      text: "During his internship, he demonstrated strong analytical thinking, problem-solving abilities, and a solid understanding of web development fundamentals. He contributed effectively to web development projects... We confidently recommend him for roles in Web Development, Front-End Development, Back-End Development, and Full-Stack Development.",
+      pdfFile: "/Zynvex Recommendation Letter.pdf"
     }
-  };
+  ];
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      
+      // 1. Initial Hero Animations
+      const heroTimeline = gsap.timeline();
+      heroTimeline
+        .fromTo(".nav-fade", { opacity: 0, y: -15 }, { opacity: 1, y: 0, duration: 1.2, stagger: 0.1, ease: "power3.out", delay: 0.2 })
+        .fromTo(".mask-reveal", { y: "110%" }, { y: "0%", duration: 1.4, stagger: 0.15, ease: "expo.out" }, "-=0.8")
+        .fromTo(".fade-in-up", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1.2, ease: "power3.out" }, "-=0.8");
+
+      // 2. Scroll-triggered Text Masking
+      gsap.utils.toArray(".scroll-mask-container").forEach((container) => {
+        const text = container.querySelector(".scroll-mask-reveal");
+        gsap.fromTo(text, 
+          { y: "110%" }, 
+          {
+            y: "0%",
+            ease: "expo.out",
+            duration: 1.5,
+            scrollTrigger: {
+              trigger: container,
+              start: "top 85%",
+            }
+          }
+        );
+      });
+
+      // 3. Scroll-triggered Fade Ins
+      gsap.utils.toArray(".scroll-fade").forEach((element) => {
+        gsap.fromTo(element, 
+          { opacity: 0, y: 40 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 1.2,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: element,
+              start: "top 85%",
+            }
+          }
+        );
+      });
+
+      // 4. Parallax Project Cards
+      const isDesktop = window.innerWidth > 768;
+      gsap.utils.toArray(".parallax-card").forEach((card) => {
+        gsap.fromTo(card, 
+          { opacity: 0 }, 
+          {
+            opacity: 1,
+            duration: 1,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: card,
+              start: "top 85%",
+            }
+          }
+        );
+
+        if (isDesktop) {
+          const speed = card.getAttribute("data-speed") || 1;
+          gsap.fromTo(card, 
+            { y: 0 },
+            {
+              y: () => (1 - parseFloat(speed)) * 200, 
+              ease: "none",
+              scrollTrigger: {
+                trigger: "#projects-section",
+                start: "top bottom",
+                end: "bottom top",
+                scrub: 1.2, 
+              }
+            }
+          );
+        }
+      });
+
+    }, appRef);
+
+    return () => ctx.revert();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-blue-500 selection:text-white overflow-x-hidden antialiased">
+    <div ref={appRef} className="min-h-screen bg-[#0B0B0B] text-[#F4F0EB] font-sans selection:bg-[#FF5A1F] selection:text-[#F4F0EB] antialiased">
       
-      {/* Navigation */}
-      <motion.nav 
-        initial={{ y: -10, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-        className="fixed w-full bg-slate-950/80 backdrop-blur-md z-50 border-b border-slate-800/80"
-      >
-        <div className="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
-          <span className="font-bold tracking-wider text-white">AZFAR<span className="text-blue-500">.</span></span>
-          <div className="hidden md:flex space-x-8 text-sm font-medium text-slate-400">
-            <a href="#about" className="hover:text-blue-400 transition-colors">About</a>
-            <a href="#experience" className="hover:text-blue-400 transition-colors">Experience</a>
-            <a href="#skills" className="hover:text-blue-400 transition-colors">Skills</a>
-            <a href="#projects" className="hover:text-blue-400 transition-colors">Projects</a>
-          </div>
-          <motion.a 
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            href="#contact" 
-            className="bg-blue-600 text-white px-5 py-2 rounded-full text-sm font-medium hover:bg-blue-500 transition-colors shadow-lg shadow-blue-600/20"
-          >
-            Get in touch
-          </motion.a>
+      {/* --- NAVIGATION --- */}
+      <nav className="fixed w-full top-0 z-50 mix-blend-difference px-6 md:px-12 py-6 flex justify-between items-center pointer-events-none">
+        <div className="nav-fade pointer-events-auto font-medium tracking-tight text-lg text-[#F4F0EB] will-change-transform">
+          Azfar<span className="text-[#FF5A1F] font-bold">.</span>
         </div>
-      </motion.nav>
+        <div className="nav-fade pointer-events-auto flex gap-6 text-sm font-medium text-[#A6A09B] will-change-transform">
+          <a href="#about" className="hover:text-[#FF7847] transition-colors duration-300">About</a>
+          <a href="#work" className="hover:text-[#FF7847] transition-colors duration-300">Work</a>
+          <a href="#contact" className="hover:text-[#FF7847] transition-colors duration-300">Contact</a>
+        </div>
+      </nav>
 
-      {/* Hero Section */}
-      <section id="about" className="pt-32 pb-20 px-6 min-h-[85vh] flex items-center relative">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-blue-600/10 blur-[100px] rounded-full pointer-events-none"></div>
-        <div className="max-w-5xl mx-auto mt-16 relative z-10">
-          <motion.h1 
-            variants={fadeInUp}
-            initial="hidden"
-            animate="visible"
-            className="text-5xl md:text-7xl font-extrabold tracking-tight text-white mb-6"
-          >
-            Hi, I&apos;m <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">Azfar.</span>
-          </motion.h1>
-          
-          <motion.p 
-            variants={fadeInUp}
-            initial="hidden"
-            animate="visible"
-            className="text-xl md:text-2xl text-slate-400 max-w-2xl leading-relaxed mb-10"
-          >
-            Software Engineering student at the University of Sindh. Passionate about building full-stack web applications, dynamic faculty portals, and modern interactive interfaces.
-          </motion.p>
-          
-          <motion.div 
-            variants={fadeInUp}
-            initial="hidden"
-            animate="visible"
-            className="flex flex-wrap gap-4"
-          >
-            <motion.a 
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              href="#projects" 
-              className="bg-blue-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-blue-500 transition-colors shadow-lg shadow-blue-600/30"
-            >
-              View My Work
-            </motion.a>
-            <motion.a 
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              href="/cv.html" 
-              target="_blank" 
-              rel="noreferrer" 
-              className="px-6 py-3 rounded-xl font-medium border border-blue-500/30 text-blue-400 bg-blue-950/30 hover:bg-blue-900/40 hover:text-white transition-all shadow-sm"
-            >
-              View CV
-            </motion.a>
-            <motion.a 
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              href="https://github.com/azfarx20s" 
-              target="_blank" 
-              rel="noreferrer" 
-              className="px-6 py-3 rounded-xl font-medium border border-slate-800 text-slate-300 bg-slate-900/50 hover:bg-slate-800 hover:text-white transition-all shadow-sm"
-            >
-              GitHub Profile
-            </motion.a>
-          </motion.div>
+      {/* --- HERO SECTION --- */}
+      <section className="h-screen flex flex-col justify-end pb-24 px-6 md:px-12 max-w-7xl mx-auto">
+        <div className="mb-8 max-w-5xl">
+          <div className="overflow-hidden leading-[0.9] pb-2">
+            <h1 className="mask-reveal will-change-transform text-[4.5rem] md:text-8xl lg:text-[10rem] font-bold tracking-tighter text-[#F4F0EB]">
+              Muhammad
+            </h1>
+          </div>
+          <div className="overflow-hidden leading-[0.9] pb-4">
+            <h1 className="mask-reveal will-change-transform text-[4.5rem] md:text-8xl lg:text-[10rem] font-extrabold tracking-tighter text-[#FF5A1F]">
+              Azfar.
+            </h1>
+          </div>
+        </div>
+
+        <div className="fade-in-up will-change-transform flex flex-col md:flex-row gap-8 justify-between items-start md:items-end border-t border-[#39241A] pt-8 mt-4">
+          <p className="text-xl md:text-2xl font-light text-[#A6A09B] max-w-xl leading-relaxed">
+            Software Engineer building fluid, full-stack digital experiences with a focus on clean architecture and precise interface design.
+          </p>
+          <div className="flex gap-6">
+            <a href="https://github.com/azfarx20s" target="_blank" rel="noreferrer" className="text-sm font-bold uppercase tracking-widest text-[#F4F0EB] hover:text-[#FF7847] transition-colors duration-300">GitHub</a>
+            <span className="text-[#70645D]">/</span>
+            <a href="https://www.linkedin.com/in/muhammad-azfar-qadri-b5b35b363" target="_blank" rel="noreferrer" className="text-sm font-bold uppercase tracking-widest text-[#F4F0EB] hover:text-[#FF7847] transition-colors duration-300">LinkedIn</a>
+          </div>
         </div>
       </section>
 
-      {/* Experience & Education Timeline Section */}
-      <section id="experience" className="py-20 px-6">
-        <div className="max-w-5xl mx-auto">
-          <motion.h2 
-            variants={fadeInUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-            className="text-3xl font-bold mb-12 text-white"
-          >
-            Experience & Education
-          </motion.h2>
-          <div className="space-y-6 border-l border-slate-800 ml-3 pl-6">
-            {experiences.map((exp, idx) => (
-              <motion.div 
-                key={idx}
-                variants={fadeInUp}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: "-50px" }}
-              >
-                <SpotlightCard className="p-6">
-                  <div className="absolute -left-[35px] top-6 w-4 h-4 rounded-full bg-blue-600 border-4 border-slate-950"></div>
-                  <span className="text-xs font-semibold text-blue-400 tracking-wider uppercase mb-1 block">{exp.period}</span>
-                  <h3 className="text-xl font-bold text-white mb-1">{exp.role}</h3>
-                  <h4 className="text-sm font-medium text-slate-300 mb-3">{exp.organization}</h4>
-                  <p className="text-slate-400 text-sm leading-relaxed">{exp.description}</p>
-                </SpotlightCard>
-              </motion.div>
+      {/* --- ABOUT --- */}
+      <section id="about" className="py-32 px-6 md:px-12 max-w-7xl mx-auto border-t border-[#39241A]">
+        <div className="flex flex-col md:flex-row gap-12 md:gap-24">
+          
+          <div className="md:w-1/3">
+            <div className="sticky top-32 scroll-mask-container overflow-hidden pb-2">
+              <h2 className="scroll-mask-reveal will-change-transform text-3xl font-bold tracking-tight text-[#F4F0EB]">Background</h2>
+            </div>
+          </div>
+
+          <div className="md:w-2/3 space-y-16">
+            <div className="scroll-fade will-change-transform space-y-8 text-2xl md:text-4xl font-light leading-snug text-[#A6A09B]">
+              <p>
+                I am Azfar, a <span className="text-[#FF5A1F] font-semibold">Software Engineer</span> based in Pakistan. 
+              </p>
+              <p>
+                My approach to software is rooted in simplicity. I believe the best applications hide their complex backend logic behind fast, intuitive, and seamlessly engineered frontends.
+              </p>
+            </div>
+
+            <div className="scroll-fade will-change-transform border-t border-[#39241A] pt-12">
+              <span className="text-sm font-bold uppercase tracking-widest text-[#70645D] block mb-6">Education</span>
+              <h3 className="text-2xl font-normal text-[#F4F0EB] mb-2">B.S. Software Engineering</h3>
+              <p className="text-lg text-[#A6A09B]">University of Sindh, Jamshoro</p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* --- SKILLS --- */}
+      <section className="py-32 px-6 md:px-12 max-w-7xl mx-auto border-t border-[#39241A]">
+        <div className="flex flex-col md:flex-row gap-12 md:gap-24">
+          
+          <div className="md:w-1/3">
+            <div className="sticky top-32 scroll-mask-container overflow-hidden pb-2">
+              <h2 className="scroll-mask-reveal will-change-transform text-3xl font-bold tracking-tight text-[#F4F0EB]">Expertise</h2>
+            </div>
+          </div>
+
+          <div className="md:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-8">
+            {skills.map((skillGroup, idx) => (
+              <div key={idx} className="scroll-fade will-change-transform p-8 rounded-2xl bg-[#20140F] border border-[#39241A] hover:border-[#FF5A1F] hover:bg-[#2A1B14] transition-colors duration-500">
+                <h3 className="text-sm font-bold uppercase tracking-widest text-[#FF5A1F] mb-6">{skillGroup.category}</h3>
+                <ul className="space-y-4">
+                  {skillGroup.items.map((item, i) => (
+                    <li key={i} className="text-lg font-light text-[#F4F0EB] flex items-center">
+                      <span className="w-1.5 h-1.5 bg-[#FF5A1F] rounded-full mr-4 opacity-80"></span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ))}
           </div>
+
         </div>
       </section>
 
-      {/* Filter Category Bar */}
-      <section className="pt-10 px-6">
-        <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-center gap-3">
-          <span className="text-xs font-semibold uppercase text-slate-500 mr-2 tracking-wider">Filter View:</span>
-          {filterCategories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveFilter(cat)}
-              className={`relative px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                activeFilter === cat 
-                  ? "text-white" 
-                  : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
-              }`}
+      {/* --- SELECTED WORK --- */}
+      <section id="work" className="py-32 px-6 md:px-12 max-w-7xl mx-auto border-t border-[#39241A]">
+        <div className="scroll-mask-container overflow-hidden mb-24 pb-4">
+          <h2 className="scroll-mask-reveal will-change-transform text-4xl md:text-6xl font-bold tracking-tighter text-[#F4F0EB]">Selected Works.</h2>
+        </div>
+
+        <div id="projects-section" className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+          {projects.map((project, idx) => (
+            <div 
+              key={idx} 
+              data-speed={project.speed}
+              className={`parallax-card will-change-transform bg-[#20140F] p-10 md:p-14 rounded-3xl flex flex-col justify-between min-h-[450px] border border-[#39241A] hover:bg-[#2A1B14] hover:border-[#FF5A1F] transition-colors duration-500 ${idx % 2 !== 0 ? 'md:mt-24' : ''}`}
             >
-              {activeFilter === cat && (
-                <motion.div
-                  layoutId="filterTab"
-                  className="absolute inset-0 bg-blue-600/20 border border-blue-500/40 rounded-xl"
-                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                />
-              )}
-              <span className="relative z-10">{cat}</span>
-            </button>
+              <div>
+                <span className="text-xs font-bold uppercase tracking-widest text-[#FF5A1F] block mb-4">
+                  {project.role}
+                </span>
+                <h3 className="text-3xl font-bold text-[#F4F0EB] mb-6 tracking-tight">
+                  {project.title}
+                </h3>
+                <p className="text-lg font-light text-[#A6A09B] leading-relaxed mb-8">
+                  {project.desc}
+                </p>
+              </div>
+
+              <div>
+                <div className="text-sm text-[#70645D] font-medium mb-8">
+                  {project.tech}
+                </div>
+                <div className="flex flex-wrap gap-6 items-center">
+                  <a href={project.repo} target="_blank" rel="noreferrer" className="inline-flex items-center text-sm font-bold uppercase tracking-widest text-[#F4F0EB] hover:text-[#FF7847] transition-colors duration-300 group">
+                    Repository 
+                    <span className="ml-2 text-lg leading-none group-hover:translate-x-1 transition-transform duration-300">&rarr;</span>
+                  </a>
+                  {project.demo && (
+                    <a href={project.demo} target="_blank" rel="noreferrer" className="inline-flex items-center text-sm font-bold uppercase tracking-widest text-[#FF5A1F] hover:text-[#F4F0EB] transition-colors duration-300 group">
+                      Live Demo 
+                      <span className="ml-2 text-lg leading-none group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform duration-300">&#8599;</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       </section>
 
-      {/* Skills Section */}
-      <section id="skills" className="py-16 bg-slate-900/40 border-y border-slate-800/60 px-6 my-10">
-        <div className="max-w-5xl mx-auto">
-          <motion.h2 
-            variants={fadeInUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-            className="text-3xl font-bold mb-12 text-white"
-          >
-            Technical Arsenal
-          </motion.h2>
-          <motion.div layout className="grid md:grid-cols-3 gap-8">
-            <AnimatePresence>
-              {filteredSkills.map((skillGroup) => (
-                <motion.div 
-                  layout
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.25 }}
-                  key={skillGroup.category}
-                >
-                  <SpotlightCard className="p-6">
-                    <h3 className="text-lg font-semibold text-blue-400 mb-4">{skillGroup.category}</h3>
-                    <ul className="space-y-3">
-                      {skillGroup.items.map((item, i) => (
-                        <li key={i} className="flex items-center text-slate-300 font-medium">
-                          <span className="w-2 h-2 bg-blue-500 rounded-full mr-3 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></span>
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </SpotlightCard>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Projects Section */}
-      <section id="projects" className="py-20 px-6">
-        <div className="max-w-5xl mx-auto">
-          <motion.h2 
-            variants={fadeInUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-            className="text-3xl font-bold mb-12 text-white"
-          >
-            Featured Projects
-          </motion.h2>
-          <motion.div layout className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <AnimatePresence>
-              {filteredProjects.map((project) => (
-                <motion.div 
-                  layout
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.25 }}
-                  key={project.title}
-                >
-                  <SpotlightCard className="p-8 h-full">
-                    <div>
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="text-xl font-bold text-white">{project.title}</h3>
-                        {project.hasDemo && (
-                          <button
-                            onClick={() => setActiveDemo(activeDemo === project.id ? null : project.id)}
-                            className="text-xs font-medium text-blue-400 bg-blue-950/60 border border-blue-800/50 px-2.5 py-1 rounded-md hover:bg-blue-900/60 transition-colors flex items-center gap-1"
-                          >
-                            {activeDemo === project.id ? "Hide Demo ✕" : "Try Demo ⚡"}
-                          </button>
-                        )}
-                      </div>
-                      <p className="text-slate-400 mb-4 leading-relaxed text-sm">
-                        {project.description}
-                      </p>
-
-                      {/* Expandable Demo Box */}
-                      {project.hasDemo && activeDemo === project.id && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.25 }}
-                        >
-                          <FacultyPortalDemo />
-                        </motion.div>
-                      )}
-                    </div>
-                    <div className="mt-6">
-                      <div className="flex flex-wrap gap-2 mb-6">
-                        {project.tech.map((tech, i) => (
-                          <span key={i} className="text-xs font-semibold bg-blue-950 text-blue-300 border border-blue-800/50 px-3 py-1 rounded-full">
-                            {tech}
-                          </span>
-                        ))}
-                      </div>
-                      <a href={project.link} target="_blank" rel="noreferrer" className="text-sm font-semibold text-slate-200 hover:text-blue-400 flex items-center group">
-                        View Source 
-                        <span className="ml-1 group-hover:translate-x-1 transition-transform">→</span>
-                      </a>
-                    </div>
-                  </SpotlightCard>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Footer / Contact */}
-      <section id="contact" className="py-20 bg-slate-900/80 border-t border-slate-800 px-6">
-        <div className="max-w-5xl mx-auto text-center">
-          <motion.h2 
-            variants={fadeInUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-            className="text-3xl font-bold mb-6 text-white"
-          >
-            Let&apos;s build something.
-          </motion.h2>
-          <motion.p 
-            variants={fadeInUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-            className="text-slate-400 mb-8 max-w-lg mx-auto"
-          >
-            Currently looking for new opportunities. Whether you have a question or just want to say hi, my inbox is always open.
-          </motion.p>
-          <motion.a 
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            href="mailto:muhammadazfarqadri@gmail.com?subject=Hello%20from%20your%20portfolio" 
-            className="inline-block bg-blue-600 text-white px-8 py-4 rounded-xl font-semibold hover:bg-blue-500 transition-colors mb-16 shadow-lg shadow-blue-600/30"
-          >
-            Send me an email
-          </motion.a>
+      {/* --- CERTIFICATIONS --- */}
+      <section className="py-32 px-6 md:px-12 max-w-7xl mx-auto border-t border-[#39241A]">
+        <div className="flex flex-col md:flex-row gap-12 md:gap-24">
           
-          <div className="flex justify-center space-x-8 text-slate-400 text-sm font-medium">
-            <a href="https://www.linkedin.com/in/muhammadazfarqadri" target="_blank" rel="noreferrer" className="hover:text-blue-400 transition-colors">LinkedIn</a>
-            <a href="https://github.com/azfarx20s" target="_blank" rel="noreferrer" className="hover:text-blue-400 transition-colors">GitHub</a>
-            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=muhammadazfarqadri@gmail.com" target="_blank" rel="noreferrer" className="hover:text-blue-400 transition-colors">Gmail</a>
+          <div className="md:w-1/3">
+            <div className="sticky top-32 scroll-mask-container overflow-hidden pb-2">
+              <h2 className="scroll-mask-reveal will-change-transform text-3xl font-bold tracking-tight text-[#F4F0EB]">Certifications</h2>
+            </div>
           </div>
+
+          <div className="md:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {certificates.map((cert, idx) => (
+              <a 
+                href={cert.link} 
+                target="_blank" 
+                rel="noreferrer" 
+                key={idx} 
+                className="scroll-fade will-change-transform block p-6 rounded-2xl bg-[#141210] border border-[#39241A] hover:border-[#FF5A1F] hover:bg-[#20140F] transition-colors duration-300 group"
+              >
+                <div className="flex justify-between items-start mb-4">
+                  <span className="text-xs font-bold uppercase tracking-widest text-[#70645D]">{cert.issuer}</span>
+                  <span className="text-[#FF5A1F] opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300">&#8599;</span>
+                </div>
+                <h3 className="text-lg font-medium text-[#F4F0EB] leading-snug">{cert.title}</h3>
+              </a>
+            ))}
+          </div>
+
+        </div>
+      </section>
+
+      {/* --- RECOMMENDATIONS --- */}
+      <section className="py-32 px-6 md:px-12 max-w-7xl mx-auto border-t border-[#39241A]">
+        <div className="scroll-mask-container overflow-hidden mb-16 pb-4">
+          <h2 className="scroll-mask-reveal will-change-transform text-4xl md:text-6xl font-bold tracking-tighter text-[#F4F0EB]">Testimonials.</h2>
+        </div>
+
+        <div className="grid grid-cols-1 gap-8">
+          {recommendations.map((rec, idx) => (
+            <div key={idx} className="scroll-fade will-change-transform bg-[#20140F] p-10 md:p-14 rounded-3xl border border-[#39241A] flex flex-col md:flex-row gap-12">
+              <div className="md:w-2/3">
+                <span className="text-6xl text-[#FF5A1F] font-serif leading-none opacity-50">"</span>
+                <p className="text-xl md:text-2xl font-light text-[#F4F0EB] leading-relaxed italic mb-8 -mt-4">
+                  {rec.text}
+                </p>
+                <div>
+                  <h4 className="text-lg font-bold text-[#FF5A1F]">{rec.name}</h4>
+                  <p className="text-sm font-medium text-[#A6A09B]">{rec.designation}</p>
+                  <p className="text-sm text-[#70645D]">{rec.organization} &mdash; {rec.date}</p>
+                </div>
+              </div>
+              <div className="md:w-1/3 flex items-start md:justify-end border-t md:border-t-0 md:border-l border-[#39241A] pt-8 md:pt-0 md:pl-12">
+                <a 
+                  href={rec.pdfFile} 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="inline-flex items-center px-6 py-3 bg-[#2A1B14] text-[#F4F0EB] font-bold text-sm uppercase tracking-widest border border-[#39241A] hover:border-[#FF5A1F] hover:text-[#FF5A1F] rounded-xl transition-colors duration-300"
+                >
+                  View Letter PDF
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* --- CONTACT --- */}
+      <section id="contact" className="py-40 px-6 md:px-12 max-w-7xl mx-auto border-t border-[#39241A] flex flex-col items-center text-center">
+        <div className="scroll-mask-container overflow-hidden mb-8 pb-4">
+          <h2 className="scroll-mask-reveal will-change-transform text-5xl md:text-8xl font-bold tracking-tighter text-[#F4F0EB]">
+            Let's talk.
+          </h2>
+        </div>
+        
+        <p className="scroll-fade will-change-transform text-xl font-light text-[#A6A09B] mb-16 max-w-md">
+          Available for software engineering opportunities and collaborations.
+        </p>
+        
+        <a 
+          href="mailto:muhammadazfarqadri@gmail.com" 
+          className="scroll-fade will-change-transform text-lg md:text-2xl font-bold text-[#F4F0EB] border-b-2 border-[#FF5A1F]/50 hover:text-[#FF7847] hover:border-[#FF7847] pb-2 transition-colors duration-300"
+        >
+          muhammadazfarqadri@gmail.com
+        </a>
+
+        <div className="scroll-fade will-change-transform flex gap-8 mt-24">
+          <a href="https://github.com/azfarx20s" target="_blank" rel="noreferrer" className="text-sm font-bold uppercase tracking-widest text-[#70645D] hover:text-[#F4F0EB] transition-colors duration-300">GitHub</a>
+          <a href="https://www.linkedin.com/in/muhammad-azfar-qadri-b5b35b363" target="_blank" rel="noreferrer" className="text-sm font-bold uppercase tracking-widest text-[#70645D] hover:text-[#F4F0EB] transition-colors duration-300">LinkedIn</a>
         </div>
       </section>
 
