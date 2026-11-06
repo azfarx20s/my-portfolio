@@ -156,15 +156,15 @@ const App = () => {
       </nav>
 
       {/* --- HERO SECTION --- */}
-      <section className="h-screen flex flex-col justify-end pb-24 px-6 md:px-12 max-w-7xl mx-auto">
+      <section className="min-h-[100dvh] flex flex-col justify-center md:justify-end md:pb-24 pt-32 pb-12 px-6 md:px-12 max-w-7xl mx-auto">
         <div className="mb-8 max-w-5xl">
-          <div className="overflow-hidden leading-[0.9] pb-2">
-            <h1 className="mask-reveal will-change-transform text-[4.5rem] md:text-8xl lg:text-[10rem] font-bold tracking-tighter text-[#F4F0EB]">
+          <div className="overflow-hidden leading-tight pb-2 md:pb-4">
+            <h1 className="mask-reveal will-change-transform text-6xl sm:text-[5.5rem] md:text-8xl lg:text-[10rem] font-bold tracking-tighter text-[#F4F0EB]">
               Muhammad
             </h1>
           </div>
-          <div className="overflow-hidden leading-[0.9] pb-4">
-            <h1 className="mask-reveal will-change-transform text-[4.5rem] md:text-8xl lg:text-[10rem] font-extrabold tracking-tighter text-[#FF5A1F]">
+          <div className="overflow-hidden leading-tight pb-2 md:pb-6">
+            <h1 className="mask-reveal will-change-transform text-6xl sm:text-[5.5rem] md:text-8xl lg:text-[10rem] font-extrabold tracking-tighter text-[#FF5A1F]">
               Azfar.
             </h1>
           </div>
