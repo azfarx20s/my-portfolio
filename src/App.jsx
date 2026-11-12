@@ -8,6 +8,7 @@ const App = () => {
   const appRef = useRef(null);
   const marqueeRef = useRef(null);
   const isPaused = useRef(false);
+  const resumeTimeout = useRef(null);
 
   const skills = [
     { category: "Languages", items: ["JavaScript (ES6+)", "Java", "C++", "Python", "PHP"] },
@@ -62,18 +63,28 @@ const App = () => {
   ];
 
   useEffect(() => {
-    // Interactive Marquee Auto-Scroll Logic
     let animationId;
+    let setupTimeout;
+
+    // Start auto-scrolling
     const scrollMarquee = () => {
       if (marqueeRef.current && !isPaused.current) {
-        marqueeRef.current.scrollLeft += 1; // Speed of rotation
+        marqueeRef.current.scrollLeft += 1; 
       }
       animationId = requestAnimationFrame(scrollMarquee);
     };
-    animationId = requestAnimationFrame(scrollMarquee);
 
+    // Wait slightly for DOM to render, then set initial scroll position to the 2nd block
+    setupTimeout = setTimeout(() => {
+      if (marqueeRef.current) {
+        const singleBlockWidth = marqueeRef.current.scrollWidth / 4;
+        marqueeRef.current.scrollLeft = singleBlockWidth; 
+      }
+      animationId = requestAnimationFrame(scrollMarquee);
+    }, 500);
+
+    // Initial GSAP Animations
     const ctx = gsap.context(() => {
-      
       const heroTimeline = gsap.timeline();
       heroTimeline
         .fromTo(".nav-fade", { opacity: 0, y: -15 }, { opacity: 1, y: 0, duration: 1.2, stagger: 0.1, ease: "power3.out", delay: 0.2 })
@@ -114,65 +125,69 @@ const App = () => {
 
       const isDesktop = window.innerWidth > 768;
       gsap.utils.toArray(".parallax-card").forEach((card) => {
-        gsap.fromTo(card, 
-          { opacity: 0 }, 
-          {
-            opacity: 1,
-            duration: 1,
-            ease: "power2.out",
-            scrollTrigger: {
-              trigger: card,
-              start: "top 85%",
-            }
-          }
-        );
+        gsap.fromTo(card, { opacity: 0 }, {
+          opacity: 1, duration: 1, ease: "power2.out",
+          scrollTrigger: { trigger: card, start: "top 85%" }
+        });
 
         if (isDesktop) {
           const speed = card.getAttribute("data-speed") || 1;
-          gsap.fromTo(card, 
-            { y: 0 },
-            {
-              y: () => (1 - parseFloat(speed)) * 200, 
-              ease: "none",
-              scrollTrigger: {
-                trigger: "#projects-section",
-                start: "top bottom",
-                end: "bottom top",
-                scrub: 1.2, 
-              }
+          gsap.fromTo(card, { y: 0 }, {
+            y: () => (1 - parseFloat(speed)) * 200, 
+            ease: "none",
+            scrollTrigger: {
+              trigger: "#projects-section",
+              start: "top bottom",
+              end: "bottom top",
+              scrub: 1.2, 
             }
-          );
+          });
         }
       });
-
     }, appRef);
 
     return () => {
+      clearTimeout(setupTimeout);
+      clearTimeout(resumeTimeout.current);
       cancelAnimationFrame(animationId);
       ctx.revert();
     };
   }, []);
 
-  // Seamless Loop Handler for Manual Scrolling
+  // Extremely safe seamless loop detection
   const handleScroll = () => {
     if (!marqueeRef.current) return;
     const { scrollLeft, scrollWidth } = marqueeRef.current;
-    const halfWidth = scrollWidth / 2;
+    
+    // We have 4 identical blocks. Total width = 4 * blockWidth.
+    const singleBlockWidth = scrollWidth / 4;
 
-    // Jump back to start if scrolling past the end
-    if (scrollLeft >= halfWidth) {
-      marqueeRef.current.scrollLeft = scrollLeft - halfWidth;
+    // If scrolling backwards into the 1st block, instantly jump to the 3rd block
+    if (scrollLeft <= 0) {
+      marqueeRef.current.scrollLeft = singleBlockWidth * 2;
     } 
-    // Jump to middle if scrolling backward past the start
-    else if (scrollLeft <= 0) {
-      marqueeRef.current.scrollLeft = halfWidth;
+    // If scrolling forwards past the 3rd block, instantly jump back to the 2nd block
+    else if (scrollLeft >= singleBlockWidth * 3) {
+      marqueeRef.current.scrollLeft = singleBlockWidth;
     }
+  };
+
+  // Touch handlers to respect mobile swipe momentum
+  const handleTouchStart = () => {
+    isPaused.current = true;
+    clearTimeout(resumeTimeout.current);
+  };
+
+  const handleTouchEnd = () => {
+    // Wait 1 second after finger releases to allow momentum scrolling to finish
+    resumeTimeout.current = setTimeout(() => {
+      isPaused.current = false;
+    }, 1000); 
   };
 
   return (
     <div ref={appRef} className="min-h-screen bg-[#0B0B0B] text-[#F4F0EB] font-sans selection:bg-[#FF5A1F] selection:text-[#F4F0EB] overflow-x-hidden antialiased">
       
-      {/* Hide Scrollbar for Marquee */}
       <style dangerouslySetInnerHTML={{__html: `
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -220,43 +235,33 @@ const App = () => {
       {/* --- ABOUT --- */}
       <section id="about" className="py-32 px-6 md:px-12 max-w-7xl mx-auto border-t border-[#39241A]">
         <div className="flex flex-col md:flex-row gap-12 md:gap-24">
-          
           <div className="md:w-1/3">
             <div className="sticky top-32 scroll-mask-container overflow-hidden pb-2">
               <h2 className="scroll-mask-reveal will-change-transform text-3xl font-bold tracking-tight text-[#F4F0EB]">Background</h2>
             </div>
           </div>
-
           <div className="md:w-2/3 space-y-16">
             <div className="scroll-fade will-change-transform space-y-8 text-2xl md:text-4xl font-light leading-snug text-[#A6A09B]">
-              <p>
-                I am Azfar, a <span className="text-[#FF5A1F] font-semibold">Software Engineer</span> based in Pakistan. 
-              </p>
-              <p>
-                My approach to software is rooted in simplicity. I believe the best applications hide their complex backend logic behind fast, intuitive, and seamlessly engineered frontends.
-              </p>
+              <p>I am Azfar, a <span className="text-[#FF5A1F] font-semibold">Software Engineer</span> based in Pakistan.</p>
+              <p>My approach to software is rooted in simplicity. I believe the best applications hide their complex backend logic behind fast, intuitive, and seamlessly engineered frontends.</p>
             </div>
-
             <div className="scroll-fade will-change-transform border-t border-[#39241A] pt-12">
               <span className="text-sm font-bold uppercase tracking-widest text-[#70645D] block mb-6">Education</span>
               <h3 className="text-2xl font-normal text-[#F4F0EB] mb-2">B.S. Software Engineering</h3>
               <p className="text-lg text-[#A6A09B]">University of Sindh, Jamshoro</p>
             </div>
           </div>
-
         </div>
       </section>
 
       {/* --- SKILLS --- */}
       <section className="py-32 px-6 md:px-12 max-w-7xl mx-auto border-t border-[#39241A]">
         <div className="flex flex-col md:flex-row gap-12 md:gap-24">
-          
           <div className="md:w-1/3">
             <div className="sticky top-32 scroll-mask-container overflow-hidden pb-2">
               <h2 className="scroll-mask-reveal will-change-transform text-3xl font-bold tracking-tight text-[#F4F0EB]">Expertise</h2>
             </div>
           </div>
-
           <div className="md:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-8">
             {skills.map((skillGroup, idx) => (
               <div key={idx} className="scroll-fade will-change-transform p-8 rounded-2xl bg-[#20140F] border border-[#39241A] hover:border-[#FF5A1F] hover:bg-[#2A1B14] transition-colors duration-500">
@@ -272,7 +277,6 @@ const App = () => {
               </div>
             ))}
           </div>
-
         </div>
       </section>
 
@@ -281,7 +285,6 @@ const App = () => {
         <div className="scroll-mask-container overflow-hidden mb-24 pb-4">
           <h2 className="scroll-mask-reveal will-change-transform text-4xl md:text-6xl font-bold tracking-tighter text-[#F4F0EB]">Selected Works.</h2>
         </div>
-
         <div id="projects-section" className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
           {projects.map((project, idx) => (
             <div 
@@ -290,30 +293,19 @@ const App = () => {
               className={`parallax-card will-change-transform bg-[#20140F] p-10 md:p-14 rounded-3xl flex flex-col justify-between min-h-[450px] border border-[#39241A] hover:bg-[#2A1B14] hover:border-[#FF5A1F] transition-colors duration-500 ${idx % 2 !== 0 ? 'md:mt-24' : ''}`}
             >
               <div>
-                <span className="text-xs font-bold uppercase tracking-widest text-[#FF5A1F] block mb-4">
-                  {project.role}
-                </span>
-                <h3 className="text-3xl font-bold text-[#F4F0EB] mb-6 tracking-tight">
-                  {project.title}
-                </h3>
-                <p className="text-lg font-light text-[#A6A09B] leading-relaxed mb-8">
-                  {project.desc}
-                </p>
+                <span className="text-xs font-bold uppercase tracking-widest text-[#FF5A1F] block mb-4">{project.role}</span>
+                <h3 className="text-3xl font-bold text-[#F4F0EB] mb-6 tracking-tight">{project.title}</h3>
+                <p className="text-lg font-light text-[#A6A09B] leading-relaxed mb-8">{project.desc}</p>
               </div>
-
               <div>
-                <div className="text-sm text-[#70645D] font-medium mb-8">
-                  {project.tech}
-                </div>
+                <div className="text-sm text-[#70645D] font-medium mb-8">{project.tech}</div>
                 <div className="flex flex-wrap gap-6 items-center">
                   <a href={project.repo} target="_blank" rel="noreferrer" className="inline-flex items-center text-sm font-bold uppercase tracking-widest text-[#F4F0EB] hover:text-[#FF7847] transition-colors duration-300 group">
-                    Repository 
-                    <span className="ml-2 text-lg leading-none group-hover:translate-x-1 transition-transform duration-300">&rarr;</span>
+                    Repository <span className="ml-2 text-lg leading-none group-hover:translate-x-1 transition-transform duration-300">&rarr;</span>
                   </a>
                   {project.demo && (
                     <a href={project.demo} target="_blank" rel="noreferrer" className="inline-flex items-center text-sm font-bold uppercase tracking-widest text-[#FF5A1F] hover:text-[#F4F0EB] transition-colors duration-300 group">
-                      Live Demo 
-                      <span className="ml-2 text-lg leading-none group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform duration-300">&#8599;</span>
+                      Live Demo <span className="ml-2 text-lg leading-none group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform duration-300">&#8599;</span>
                     </a>
                   )}
                 </div>
@@ -323,7 +315,7 @@ const App = () => {
         </div>
       </section>
 
-      {/* --- INTERACTIVE SCROLLING CERTIFICATIONS --- */}
+      {/* --- SEAMLESS INFINITE SCROLLING CERTIFICATIONS --- */}
       <section className="py-32 border-t border-[#39241A] overflow-hidden">
         <div className="px-6 md:px-12 max-w-7xl mx-auto mb-16 scroll-mask-container overflow-hidden pb-4">
           <h2 className="scroll-mask-reveal will-change-transform text-4xl md:text-6xl font-bold tracking-tighter text-[#F4F0EB]">Certifications.</h2>
@@ -332,49 +324,33 @@ const App = () => {
         <div 
           ref={marqueeRef}
           onScroll={handleScroll}
-          onMouseEnter={() => (isPaused.current = true)}
-          onMouseLeave={() => (isPaused.current = false)}
-          onTouchStart={() => (isPaused.current = true)}
-          onTouchEnd={() => (isPaused.current = false)}
-          className="flex overflow-x-auto no-scrollbar scroll-fade will-change-transform cursor-grab active:cursor-grabbing w-full"
+          onMouseEnter={() => { isPaused.current = true; clearTimeout(resumeTimeout.current); }}
+          onMouseLeave={() => { isPaused.current = false; }}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          style={{ WebkitOverflowScrolling: 'touch' }}
+          className="flex overflow-x-auto no-scrollbar scroll-fade cursor-grab active:cursor-grabbing w-full"
         >
-          {/* Group 1 */}
-          <div className="flex gap-6 pr-6 w-max flex-shrink-0">
-            {certificates.map((cert, idx) => (
-              <a 
-                href={cert.link} 
-                target="_blank" 
-                rel="noreferrer" 
-                key={`cert-1-${idx}`} 
-                className="flex-shrink-0 w-80 p-6 rounded-2xl bg-[#141210] border border-[#39241A] hover:border-[#FF5A1F] hover:bg-[#20140F] transition-colors duration-300 group flex flex-col justify-between"
-              >
-                <div className="flex justify-between items-start mb-6">
-                  <span className="text-xs font-bold uppercase tracking-widest text-[#70645D]">{cert.issuer}</span>
-                  <span className="text-[#FF5A1F] opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300">&#8599;</span>
-                </div>
-                <h3 className="text-lg font-medium text-[#F4F0EB] leading-snug">{cert.title}</h3>
-              </a>
-            ))}
-          </div>
-
-          {/* Group 2 (Identical Clone for Seamless Looping) */}
-          <div className="flex gap-6 pr-6 w-max flex-shrink-0" aria-hidden="true">
-            {certificates.map((cert, idx) => (
-              <a 
-                href={cert.link} 
-                target="_blank" 
-                rel="noreferrer" 
-                key={`cert-2-${idx}`} 
-                className="flex-shrink-0 w-80 p-6 rounded-2xl bg-[#141210] border border-[#39241A] hover:border-[#FF5A1F] hover:bg-[#20140F] transition-colors duration-300 group flex flex-col justify-between"
-              >
-                <div className="flex justify-between items-start mb-6">
-                  <span className="text-xs font-bold uppercase tracking-widest text-[#70645D]">{cert.issuer}</span>
-                  <span className="text-[#FF5A1F] opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300">&#8599;</span>
-                </div>
-                <h3 className="text-lg font-medium text-[#F4F0EB] leading-snug">{cert.title}</h3>
-              </a>
-            ))}
-          </div>
+          {/* We render 4 identical blocks. This guarantees you can swipe fast in any direction without hitting a dead end. */}
+          {[1, 2, 3, 4].map((blockId) => (
+            <div key={`block-${blockId}`} className="flex gap-6 pr-6 w-max flex-shrink-0">
+              {certificates.map((cert, idx) => (
+                <a 
+                  href={cert.link} 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  key={`cert-${blockId}-${idx}`} 
+                  className="flex-shrink-0 w-80 p-6 rounded-2xl bg-[#141210] border border-[#39241A] hover:border-[#FF5A1F] hover:bg-[#20140F] transition-colors duration-300 group flex flex-col justify-between"
+                >
+                  <div className="flex justify-between items-start mb-6">
+                    <span className="text-xs font-bold uppercase tracking-widest text-[#70645D]">{cert.issuer}</span>
+                    <span className="text-[#FF5A1F] opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300">&#8599;</span>
+                  </div>
+                  <h3 className="text-lg font-medium text-[#F4F0EB] leading-snug">{cert.title}</h3>
+                </a>
+              ))}
+            </div>
+          ))}
         </div>
       </section>
 
