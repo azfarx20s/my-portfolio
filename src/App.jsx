@@ -6,6 +6,8 @@ gsap.registerPlugin(ScrollTrigger);
 
 const App = () => {
   const appRef = useRef(null);
+  const marqueeRef = useRef(null);
+  const isPaused = useRef(false);
 
   const skills = [
     { category: "Languages", items: ["JavaScript (ES6+)", "Java", "C++", "Python", "PHP"] },
@@ -36,14 +38,16 @@ const App = () => {
   ];
 
   const certificates = [
+    { title: "Introduction to Modern AI", issuer: "Cisco", link: "https://www.credly.com/badges/097946b0-ee0c-46ed-9dce-650fefb70897/linked_in_profile" },
+    { title: "Climate Action: Tackling the Climate Crisis for a Better World", issuer: "University of Leeds", link: "https://www.futurelearn.com/certificates/9gu6azw" },
     { title: "Web Development Internship", issuer: "Zynvex Solutions", link: "https://www.zynvexcert.live/verify/ZYNVEX-CERT-1911" },
-    { title: "Coursera Course Certification", issuer: "Coursera", link: "https://www.coursera.org/account/accomplishments/verify/HW4SMKJ1JP4T" },
-    { title: "Microsoft Learn Achievement 1", issuer: "Microsoft", link: "https://learn.microsoft.com/en-us/users/MuhammadAzfarQadri-4418/achievements/K9KDHNXB?ref=https%3a%2f%2fwww.linkedin.com%2f" },
-    { title: "Microsoft Learn Achievement 2", issuer: "Microsoft", link: "https://learn.microsoft.com/en-us/users/MuhammadAzfarQadri-4418/achievements/NQ8MUKYF?ref=https%3a%2f%2fwww.linkedin.com%2f" },
-    { title: "Life-Global Certification 1", issuer: "Life-Global", link: "https://www.life-global.org/certificate/f51479b1-1250-4c61-bedc-5603d713757e" },
-    { title: "Life-Global Certification 2", issuer: "Life-Global", link: "https://www.life-global.org/certificate/0165f385-b860-4e5b-9be2-808862c8a705" },
-    { title: "AI Bridge Certification", issuer: "AI Bridge IIUI", link: "https://ai-bridge-iiui.vercel.app/verify/AIB-EULYM8V5" },
-    { title: "IdeaGist Certification", issuer: "IdeaGist", link: "https://quiz.ideagist.com/ideagist-certificate?cert_hash=b89f5278fb77ebb9" }
+    { title: "Build a free website with WordPress", issuer: "Coursera", link: "https://www.coursera.org/account/accomplishments/verify/HW4SMKJ1JP4T" },
+    { title: "Introduction to Developing AI Agents", issuer: "Microsoft", link: "https://learn.microsoft.com/en-us/users/MuhammadAzfarQadri-4418/achievements/K9KDHNXB?ref=https%3a%2f%2fwww.linkedin.com%2f" },
+    { title: "Introduction to Generative AI and Agents", issuer: "Microsoft", link: "https://learn.microsoft.com/en-us/users/MuhammadAzfarQadri-4418/achievements/NQ8MUKYF?ref=https%3a%2f%2fwww.linkedin.com%2f" },
+    { title: "Agile Project Management", issuer: "Life-Global", link: "https://www.life-global.org/certificate/f51479b1-1250-4c61-bedc-5603d713757e" },
+    { title: "AI for Business Professionals", issuer: "Life-Global", link: "https://www.life-global.org/certificate/0165f385-b860-4e5b-9be2-808862c8a705" },
+    { title: "The AI Bridge: Source-Grounded AI & NotebookLM Mastery", issuer: "AI Bridge IIUI", link: "https://ai-bridge-iiui.vercel.app/verify/AIB-EULYM8V5" },
+    { title: "Entrepreneurship", issuer: "IdeaGist", link: "https://quiz.ideagist.com/ideagist-certificate?cert_hash=b89f5278fb77ebb9" }
   ];
 
   const recommendations = [
@@ -58,16 +62,24 @@ const App = () => {
   ];
 
   useEffect(() => {
+    // Interactive Marquee Auto-Scroll Logic
+    let animationId;
+    const scrollMarquee = () => {
+      if (marqueeRef.current && !isPaused.current) {
+        marqueeRef.current.scrollLeft += 1; // Speed of rotation
+      }
+      animationId = requestAnimationFrame(scrollMarquee);
+    };
+    animationId = requestAnimationFrame(scrollMarquee);
+
     const ctx = gsap.context(() => {
       
-      // 1. Initial Hero Animations
       const heroTimeline = gsap.timeline();
       heroTimeline
         .fromTo(".nav-fade", { opacity: 0, y: -15 }, { opacity: 1, y: 0, duration: 1.2, stagger: 0.1, ease: "power3.out", delay: 0.2 })
         .fromTo(".mask-reveal", { y: "110%" }, { y: "0%", duration: 1.4, stagger: 0.15, ease: "expo.out" }, "-=0.8")
         .fromTo(".fade-in-up", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1.2, ease: "power3.out" }, "-=0.8");
 
-      // 2. Scroll-triggered Text Masking
       gsap.utils.toArray(".scroll-mask-container").forEach((container) => {
         const text = container.querySelector(".scroll-mask-reveal");
         gsap.fromTo(text, 
@@ -84,7 +96,6 @@ const App = () => {
         );
       });
 
-      // 3. Scroll-triggered Fade Ins
       gsap.utils.toArray(".scroll-fade").forEach((element) => {
         gsap.fromTo(element, 
           { opacity: 0, y: 40 },
@@ -101,7 +112,6 @@ const App = () => {
         );
       });
 
-      // 4. Parallax Project Cards
       const isDesktop = window.innerWidth > 768;
       gsap.utils.toArray(".parallax-card").forEach((card) => {
         gsap.fromTo(card, 
@@ -137,12 +147,37 @@ const App = () => {
 
     }, appRef);
 
-    return () => ctx.revert();
+    return () => {
+      cancelAnimationFrame(animationId);
+      ctx.revert();
+    };
   }, []);
 
+  // Seamless Loop Handler for Manual Scrolling
+  const handleScroll = () => {
+    if (!marqueeRef.current) return;
+    const { scrollLeft, scrollWidth } = marqueeRef.current;
+    const halfWidth = scrollWidth / 2;
+
+    // Jump back to start if scrolling past the end
+    if (scrollLeft >= halfWidth) {
+      marqueeRef.current.scrollLeft = scrollLeft - halfWidth;
+    } 
+    // Jump to middle if scrolling backward past the start
+    else if (scrollLeft <= 0) {
+      marqueeRef.current.scrollLeft = halfWidth;
+    }
+  };
+
   return (
-    <div ref={appRef} className="min-h-screen bg-[#0B0B0B] text-[#F4F0EB] font-sans selection:bg-[#FF5A1F] selection:text-[#F4F0EB] antialiased">
+    <div ref={appRef} className="min-h-screen bg-[#0B0B0B] text-[#F4F0EB] font-sans selection:bg-[#FF5A1F] selection:text-[#F4F0EB] overflow-x-hidden antialiased">
       
+      {/* Hide Scrollbar for Marquee */}
+      <style dangerouslySetInnerHTML={{__html: `
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}} />
+
       {/* --- NAVIGATION --- */}
       <nav className="fixed w-full top-0 z-50 mix-blend-difference px-6 md:px-12 py-6 flex justify-between items-center pointer-events-none">
         <div className="nav-fade pointer-events-auto font-medium tracking-tight text-lg text-[#F4F0EB] will-change-transform">
@@ -288,26 +323,32 @@ const App = () => {
         </div>
       </section>
 
-      {/* --- CERTIFICATIONS --- */}
-      <section className="py-32 px-6 md:px-12 max-w-7xl mx-auto border-t border-[#39241A]">
-        <div className="flex flex-col md:flex-row gap-12 md:gap-24">
-          
-          <div className="md:w-1/3">
-            <div className="sticky top-32 scroll-mask-container overflow-hidden pb-2">
-              <h2 className="scroll-mask-reveal will-change-transform text-3xl font-bold tracking-tight text-[#F4F0EB]">Certifications</h2>
-            </div>
-          </div>
+      {/* --- INTERACTIVE SCROLLING CERTIFICATIONS --- */}
+      <section className="py-32 border-t border-[#39241A] overflow-hidden">
+        <div className="px-6 md:px-12 max-w-7xl mx-auto mb-16 scroll-mask-container overflow-hidden pb-4">
+          <h2 className="scroll-mask-reveal will-change-transform text-4xl md:text-6xl font-bold tracking-tighter text-[#F4F0EB]">Certifications.</h2>
+        </div>
 
-          <div className="md:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div 
+          ref={marqueeRef}
+          onScroll={handleScroll}
+          onMouseEnter={() => (isPaused.current = true)}
+          onMouseLeave={() => (isPaused.current = false)}
+          onTouchStart={() => (isPaused.current = true)}
+          onTouchEnd={() => (isPaused.current = false)}
+          className="flex overflow-x-auto no-scrollbar scroll-fade will-change-transform cursor-grab active:cursor-grabbing w-full"
+        >
+          {/* Group 1 */}
+          <div className="flex gap-6 pr-6 w-max flex-shrink-0">
             {certificates.map((cert, idx) => (
               <a 
                 href={cert.link} 
                 target="_blank" 
                 rel="noreferrer" 
-                key={idx} 
-                className="scroll-fade will-change-transform block p-6 rounded-2xl bg-[#141210] border border-[#39241A] hover:border-[#FF5A1F] hover:bg-[#20140F] transition-colors duration-300 group"
+                key={`cert-1-${idx}`} 
+                className="flex-shrink-0 w-80 p-6 rounded-2xl bg-[#141210] border border-[#39241A] hover:border-[#FF5A1F] hover:bg-[#20140F] transition-colors duration-300 group flex flex-col justify-between"
               >
-                <div className="flex justify-between items-start mb-4">
+                <div className="flex justify-between items-start mb-6">
                   <span className="text-xs font-bold uppercase tracking-widest text-[#70645D]">{cert.issuer}</span>
                   <span className="text-[#FF5A1F] opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300">&#8599;</span>
                 </div>
@@ -316,6 +357,24 @@ const App = () => {
             ))}
           </div>
 
+          {/* Group 2 (Identical Clone for Seamless Looping) */}
+          <div className="flex gap-6 pr-6 w-max flex-shrink-0" aria-hidden="true">
+            {certificates.map((cert, idx) => (
+              <a 
+                href={cert.link} 
+                target="_blank" 
+                rel="noreferrer" 
+                key={`cert-2-${idx}`} 
+                className="flex-shrink-0 w-80 p-6 rounded-2xl bg-[#141210] border border-[#39241A] hover:border-[#FF5A1F] hover:bg-[#20140F] transition-colors duration-300 group flex flex-col justify-between"
+              >
+                <div className="flex justify-between items-start mb-6">
+                  <span className="text-xs font-bold uppercase tracking-widest text-[#70645D]">{cert.issuer}</span>
+                  <span className="text-[#FF5A1F] opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300">&#8599;</span>
+                </div>
+                <h3 className="text-lg font-medium text-[#F4F0EB] leading-snug">{cert.title}</h3>
+              </a>
+            ))}
+          </div>
         </div>
       </section>
 
