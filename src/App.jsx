@@ -66,7 +66,6 @@ const App = () => {
     let animationId;
     let setupTimeout;
 
-    // Start auto-scrolling
     const scrollMarquee = () => {
       if (marqueeRef.current && !isPaused.current) {
         marqueeRef.current.scrollLeft += 1; 
@@ -74,16 +73,16 @@ const App = () => {
       animationId = requestAnimationFrame(scrollMarquee);
     };
 
-    // Wait slightly for DOM to render, then set initial scroll position to the 2nd block
+    // Center the scroll position after layout renders
     setupTimeout = setTimeout(() => {
       if (marqueeRef.current) {
-        const singleBlockWidth = marqueeRef.current.scrollWidth / 4;
-        marqueeRef.current.scrollLeft = singleBlockWidth; 
+        // We have 10 blocks, drop the user safely at block 5
+        const singleBlockWidth = marqueeRef.current.scrollWidth / 10;
+        marqueeRef.current.scrollLeft = singleBlockWidth * 4; 
       }
       animationId = requestAnimationFrame(scrollMarquee);
     }, 500);
 
-    // Initial GSAP Animations
     const ctx = gsap.context(() => {
       const heroTimeline = gsap.timeline();
       heroTimeline
@@ -154,35 +153,33 @@ const App = () => {
     };
   }, []);
 
-  // Extremely safe seamless loop detection
   const handleScroll = () => {
     if (!marqueeRef.current) return;
     const { scrollLeft, scrollWidth } = marqueeRef.current;
     
-    // We have 4 identical blocks. Total width = 4 * blockWidth.
-    const singleBlockWidth = scrollWidth / 4;
+    // We now render 10 massive blocks to absorb momentum scrolling
+    const singleBlockWidth = scrollWidth / 10;
 
-    // If scrolling backwards into the 1st block, instantly jump to the 3rd block
-    if (scrollLeft <= 0) {
-      marqueeRef.current.scrollLeft = singleBlockWidth * 2;
+    // If scrolling far left into block 2, jump ahead to block 6
+    if (scrollLeft <= singleBlockWidth * 2) {
+      marqueeRef.current.scrollLeft = scrollLeft + (singleBlockWidth * 4);
     } 
-    // If scrolling forwards past the 3rd block, instantly jump back to the 2nd block
-    else if (scrollLeft >= singleBlockWidth * 3) {
-      marqueeRef.current.scrollLeft = singleBlockWidth;
+    // If scrolling far right into block 8, jump back to block 4
+    else if (scrollLeft >= singleBlockWidth * 8) {
+      marqueeRef.current.scrollLeft = scrollLeft - (singleBlockWidth * 4);
     }
   };
 
-  // Touch handlers to respect mobile swipe momentum
   const handleTouchStart = () => {
     isPaused.current = true;
     clearTimeout(resumeTimeout.current);
   };
 
   const handleTouchEnd = () => {
-    // Wait 1 second after finger releases to allow momentum scrolling to finish
+    // Wait 1.5s on mobile so native momentum finishes completely before auto-scroll resumes
     resumeTimeout.current = setTimeout(() => {
       isPaused.current = false;
-    }, 1000); 
+    }, 1500); 
   };
 
   return (
@@ -317,40 +314,44 @@ const App = () => {
 
       {/* --- SEAMLESS INFINITE SCROLLING CERTIFICATIONS --- */}
       <section className="py-32 border-t border-[#39241A] overflow-hidden">
-        <div className="px-6 md:px-12 max-w-7xl mx-auto mb-16 scroll-mask-container overflow-hidden pb-4">
-          <h2 className="scroll-mask-reveal will-change-transform text-4xl md:text-6xl font-bold tracking-tighter text-[#F4F0EB]">Certifications.</h2>
-        </div>
+        {/* Isolated Scroll Fade wrapper to prevent GSAP mobile conflicts */}
+        <div className="scroll-fade will-change-transform">
+          <div className="px-6 md:px-12 max-w-7xl mx-auto mb-16 scroll-mask-container overflow-hidden pb-4">
+            <h2 className="scroll-mask-reveal will-change-transform text-4xl md:text-6xl font-bold tracking-tighter text-[#F4F0EB]">Certifications.</h2>
+          </div>
 
-        <div 
-          ref={marqueeRef}
-          onScroll={handleScroll}
-          onMouseEnter={() => { isPaused.current = true; clearTimeout(resumeTimeout.current); }}
-          onMouseLeave={() => { isPaused.current = false; }}
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-          style={{ WebkitOverflowScrolling: 'touch' }}
-          className="flex overflow-x-auto no-scrollbar scroll-fade cursor-grab active:cursor-grabbing w-full"
-        >
-          {/* We render 4 identical blocks. This guarantees you can swipe fast in any direction without hitting a dead end. */}
-          {[1, 2, 3, 4].map((blockId) => (
-            <div key={`block-${blockId}`} className="flex gap-6 pr-6 w-max flex-shrink-0">
-              {certificates.map((cert, idx) => (
-                <a 
-                  href={cert.link} 
-                  target="_blank" 
-                  rel="noreferrer" 
-                  key={`cert-${blockId}-${idx}`} 
-                  className="flex-shrink-0 w-80 p-6 rounded-2xl bg-[#141210] border border-[#39241A] hover:border-[#FF5A1F] hover:bg-[#20140F] transition-colors duration-300 group flex flex-col justify-between"
-                >
-                  <div className="flex justify-between items-start mb-6">
-                    <span className="text-xs font-bold uppercase tracking-widest text-[#70645D]">{cert.issuer}</span>
-                    <span className="text-[#FF5A1F] opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300">&#8599;</span>
-                  </div>
-                  <h3 className="text-lg font-medium text-[#F4F0EB] leading-snug">{cert.title}</h3>
-                </a>
-              ))}
-            </div>
-          ))}
+          <div 
+            ref={marqueeRef}
+            onScroll={handleScroll}
+            onMouseEnter={() => { isPaused.current = true; clearTimeout(resumeTimeout.current); }}
+            onMouseLeave={() => { isPaused.current = false; }}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+            style={{ WebkitOverflowScrolling: 'touch' }}
+            className="flex overflow-x-auto no-scrollbar cursor-grab active:cursor-grabbing w-full"
+          >
+            {/* 10 identical blocks for an ultra-long mobile momentum runway */}
+            {[...Array(10)].map((_, blockId) => (
+              <div key={`block-${blockId}`} className="flex gap-6 pr-6 w-max flex-shrink-0">
+                {certificates.map((cert, idx) => (
+                  <a 
+                    href={cert.link} 
+                    target="_blank" 
+                    rel="noreferrer" 
+                    key={`cert-${blockId}-${idx}`} 
+                    style={{ transform: 'translateZ(0)' }} // Forces hardware rendering on iOS to prevent blackout
+                    className="flex-shrink-0 w-80 p-6 rounded-2xl bg-[#141210] border border-[#39241A] hover:border-[#FF5A1F] hover:bg-[#20140F] transition-colors duration-300 group flex flex-col justify-between"
+                  >
+                    <div className="flex justify-between items-start mb-6">
+                      <span className="text-xs font-bold uppercase tracking-widest text-[#70645D]">{cert.issuer}</span>
+                      <span className="text-[#FF5A1F] opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300">&#8599;</span>
+                    </div>
+                    <h3 className="text-lg font-medium text-[#F4F0EB] leading-snug">{cert.title}</h3>
+                  </a>
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
