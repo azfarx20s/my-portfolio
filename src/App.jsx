@@ -73,10 +73,8 @@ const App = () => {
       animationId = requestAnimationFrame(scrollMarquee);
     };
 
-    // Center the scroll position after layout renders
     setupTimeout = setTimeout(() => {
       if (marqueeRef.current) {
-        // We have 10 blocks, drop the user safely at block 5
         const singleBlockWidth = marqueeRef.current.scrollWidth / 10;
         marqueeRef.current.scrollLeft = singleBlockWidth * 4; 
       }
@@ -132,7 +130,7 @@ const App = () => {
         if (isDesktop) {
           const speed = card.getAttribute("data-speed") || 1;
           gsap.fromTo(card, { y: 0 }, {
-            y: () => (1 - parseFloat(speed)) * 200, 
+            y: () => (1 - parseFloat(speed)) * 100, 
             ease: "none",
             scrollTrigger: {
               trigger: "#projects-section",
@@ -156,16 +154,11 @@ const App = () => {
   const handleScroll = () => {
     if (!marqueeRef.current) return;
     const { scrollLeft, scrollWidth } = marqueeRef.current;
-    
-    // We now render 10 massive blocks to absorb momentum scrolling
     const singleBlockWidth = scrollWidth / 10;
 
-    // If scrolling far left into block 2, jump ahead to block 6
     if (scrollLeft <= singleBlockWidth * 2) {
       marqueeRef.current.scrollLeft = scrollLeft + (singleBlockWidth * 4);
-    } 
-    // If scrolling far right into block 8, jump back to block 4
-    else if (scrollLeft >= singleBlockWidth * 8) {
+    } else if (scrollLeft >= singleBlockWidth * 8) {
       marqueeRef.current.scrollLeft = scrollLeft - (singleBlockWidth * 4);
     }
   };
@@ -176,7 +169,6 @@ const App = () => {
   };
 
   const handleTouchEnd = () => {
-    // Wait 1.5s on mobile so native momentum finishes completely before auto-scroll resumes
     resumeTimeout.current = setTimeout(() => {
       isPaused.current = false;
     }, 1500); 
@@ -251,7 +243,7 @@ const App = () => {
         </div>
       </section>
 
-      {/* --- SKILLS --- */}
+      {/* --- BORDERLESS SLEEK EXPERTISE --- */}
       <section className="py-32 px-6 md:px-12 max-w-7xl mx-auto border-t border-[#39241A]">
         <div className="flex flex-col md:flex-row gap-12 md:gap-24">
           <div className="md:w-1/3">
@@ -259,53 +251,62 @@ const App = () => {
               <h2 className="scroll-mask-reveal will-change-transform text-3xl font-bold tracking-tight text-[#F4F0EB]">Expertise</h2>
             </div>
           </div>
-          <div className="md:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-8">
+          <div className="md:w-2/3 flex flex-col space-y-16">
             {skills.map((skillGroup, idx) => (
-              <div key={idx} className="scroll-fade will-change-transform p-8 rounded-2xl bg-[#20140F] border border-[#39241A] hover:border-[#FF5A1F] hover:bg-[#2A1B14] transition-colors duration-500">
-                <h3 className="text-sm font-bold uppercase tracking-widest text-[#FF5A1F] mb-6">{skillGroup.category}</h3>
-                <ul className="space-y-4">
+              <div key={idx} className="scroll-fade will-change-transform group">
+                <h3 className="text-sm font-bold uppercase tracking-widest text-[#FF5A1F] mb-4">
+                  {skillGroup.category}
+                </h3>
+                <div className="flex flex-wrap gap-x-6 gap-y-3">
                   {skillGroup.items.map((item, i) => (
-                    <li key={i} className="text-lg font-light text-[#F4F0EB] flex items-center">
-                      <span className="w-1.5 h-1.5 bg-[#FF5A1F] rounded-full mr-4 opacity-80"></span>
+                    <span key={i} className="text-xl md:text-2xl font-light text-[#A6A09B] group-hover:text-[#F4F0EB] transition-colors duration-300">
                       {item}
-                    </li>
+                      {i < skillGroup.items.length - 1 && <span className="text-[#70645D] ml-6 font-thin">/</span>}
+                    </span>
                   ))}
-                </ul>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* --- SELECTED WORK --- */}
+      {/* --- SELECTED WORKS (Clean single line divider) --- */}
       <section id="work" className="py-32 px-6 md:px-12 max-w-7xl mx-auto border-t border-[#39241A]">
-        <div className="scroll-mask-container overflow-hidden mb-24 pb-4">
+        <div className="scroll-mask-container overflow-hidden mb-20 pb-4">
           <h2 className="scroll-mask-reveal will-change-transform text-4xl md:text-6xl font-bold tracking-tighter text-[#F4F0EB]">Selected Works.</h2>
         </div>
-        <div id="projects-section" className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+
+        <div id="projects-section" className="flex flex-col divide-y divide-[#39241A] border-y border-[#39241A]">
           {projects.map((project, idx) => (
             <div 
               key={idx} 
               data-speed={project.speed}
-              className={`parallax-card will-change-transform bg-[#20140F] p-10 md:p-14 rounded-3xl flex flex-col justify-between min-h-[450px] border border-[#39241A] hover:bg-[#2A1B14] hover:border-[#FF5A1F] transition-colors duration-500 ${idx % 2 !== 0 ? 'md:mt-24' : ''}`}
+              className="parallax-card scroll-fade will-change-transform py-16 px-4 md:px-8 hover:bg-[#141210]/60 transition-colors duration-500 group flex flex-col lg:flex-row lg:items-center justify-between gap-10"
             >
-              <div>
-                <span className="text-xs font-bold uppercase tracking-widest text-[#FF5A1F] block mb-4">{project.role}</span>
-                <h3 className="text-3xl font-bold text-[#F4F0EB] mb-6 tracking-tight">{project.title}</h3>
-                <p className="text-lg font-light text-[#A6A09B] leading-relaxed mb-8">{project.desc}</p>
-              </div>
-              <div>
-                <div className="text-sm text-[#70645D] font-medium mb-8">{project.tech}</div>
-                <div className="flex flex-wrap gap-6 items-center">
-                  <a href={project.repo} target="_blank" rel="noreferrer" className="inline-flex items-center text-sm font-bold uppercase tracking-widest text-[#F4F0EB] hover:text-[#FF7847] transition-colors duration-300 group">
-                    Repository <span className="ml-2 text-lg leading-none group-hover:translate-x-1 transition-transform duration-300">&rarr;</span>
-                  </a>
-                  {project.demo && (
-                    <a href={project.demo} target="_blank" rel="noreferrer" className="inline-flex items-center text-sm font-bold uppercase tracking-widest text-[#FF5A1F] hover:text-[#F4F0EB] transition-colors duration-300 group">
-                      Live Demo <span className="ml-2 text-lg leading-none group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform duration-300">&#8599;</span>
-                    </a>
-                  )}
+              <div className="max-w-2xl">
+                <div className="flex items-center gap-4 mb-3">
+                  <span className="text-xs font-bold uppercase tracking-widest text-[#FF5A1F]">{project.role}</span>
+                  <span className="text-[#70645D]">&bull;</span>
+                  <span className="text-xs font-medium text-[#70645D]">{project.tech}</span>
                 </div>
+                <h3 className="text-3xl md:text-5xl font-bold text-[#F4F0EB] tracking-tight group-hover:text-[#FF7847] transition-colors duration-300 mb-4">
+                  {project.title}
+                </h3>
+                <p className="text-base md:text-lg font-light text-[#A6A09B] leading-relaxed">
+                  {project.desc}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-6 flex-shrink-0">
+                <a href={project.repo} target="_blank" rel="noreferrer" className="inline-flex items-center text-xs md:text-sm font-bold uppercase tracking-widest px-6 py-3 rounded-full border border-[#39241A] text-[#F4F0EB] hover:border-[#FF5A1F] hover:text-[#FF5A1F] transition-all duration-300">
+                  Repository &rarr;
+                </a>
+                {project.demo && (
+                  <a href={project.demo} target="_blank" rel="noreferrer" className="inline-flex items-center text-xs md:text-sm font-bold uppercase tracking-widest px-6 py-3 rounded-full bg-[#FF5A1F] text-[#0B0B0B] hover:bg-[#FF7847] transition-all duration-300">
+                    Live Demo &#8599;
+                  </a>
+                )}
               </div>
             </div>
           ))}
@@ -314,7 +315,6 @@ const App = () => {
 
       {/* --- SEAMLESS INFINITE SCROLLING CERTIFICATIONS --- */}
       <section className="py-32 border-t border-[#39241A] overflow-hidden">
-        {/* Isolated Scroll Fade wrapper to prevent GSAP mobile conflicts */}
         <div className="scroll-fade will-change-transform">
           <div className="px-6 md:px-12 max-w-7xl mx-auto mb-16 scroll-mask-container overflow-hidden pb-4">
             <h2 className="scroll-mask-reveal will-change-transform text-4xl md:text-6xl font-bold tracking-tighter text-[#F4F0EB]">Certifications.</h2>
@@ -330,7 +330,6 @@ const App = () => {
             style={{ WebkitOverflowScrolling: 'touch' }}
             className="flex overflow-x-auto no-scrollbar cursor-grab active:cursor-grabbing w-full"
           >
-            {/* 10 identical blocks for an ultra-long mobile momentum runway */}
             {[...Array(10)].map((_, blockId) => (
               <div key={`block-${blockId}`} className="flex gap-6 pr-6 w-max flex-shrink-0">
                 {certificates.map((cert, idx) => (
@@ -339,7 +338,7 @@ const App = () => {
                     target="_blank" 
                     rel="noreferrer" 
                     key={`cert-${blockId}-${idx}`} 
-                    style={{ transform: 'translateZ(0)' }} // Forces hardware rendering on iOS to prevent blackout
+                    style={{ transform: 'translateZ(0)' }} 
                     className="flex-shrink-0 w-80 p-6 rounded-2xl bg-[#141210] border border-[#39241A] hover:border-[#FF5A1F] hover:bg-[#20140F] transition-colors duration-300 group flex flex-col justify-between"
                   >
                     <div className="flex justify-between items-start mb-6">
