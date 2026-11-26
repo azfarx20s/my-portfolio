@@ -1,16 +1,34 @@
-# React + Vite
+# Muhammad Azfar — Software Engineering Portfolio
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A responsive, minimalist software engineering portfolio built with React, Vite, Tailwind CSS, and GSAP. Designed to present my technical background, full-stack development projects, internship experience, achievements, and verified certifications.
 
-Currently, two official plugins are available:
+**Live Website:** [https://my-portfolio-nu-blue-63.vercel.app/](https://my-portfolio-nu-blue-63.vercel.app/)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+* **Frontend:** React.js, Vite, Tailwind CSS
+* **Animations:** GSAP (GreenSock Animation Platform) & ScrollTrigger
+* **Deployment:** Vercel (GitHub CI/CD integration)
 
-## Expanding the Oxlint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## Portfolio Sections
+
+* **Hero & Profile:** Introduction, profile photo, downloadable CV (PDF), and GitHub/LinkedIn links.
+* **About & Career Objective:** Background, engineering philosophy, career goals, and B.S. Software Engineering education at University of Sindh, Jamshoro.
+* **Technical Skills:** Categorized stack covering Languages, Frontend, Backend & Databases, Parallel & Distributed Computing, and Developer Tools.
+* **Experience:** Web Development Internship at Zynvex Solutions.
+* **Selected Works:** Detailed case studies (Problem, Process, Challenges, Outcome) for *Campus Connect* and *Faculty Web Portal*.
+* **Achievements & Certifications:** NASA Space Apps Challenge 2026 recognition and 13 verified technical credentials.
+* **Testimonials & Contact:** Supervisor recommendation letter and direct email contact.
+
+---
+
+## How to Run Locally
+
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/azfarx20s/](https://github.com/azfarx20s/)<your-repo-name>.git
+   cd <your-repo-name>
