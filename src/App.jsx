@@ -40,10 +40,22 @@ const App = () => {
 
   const certificates = [
     { 
-  title: "NASA Space Apps Challenge 2026 - Galactic Problem Solver", 
-  issuer: "NASA", 
-  link: "/certificate_azfarqa_2026__n_a_s_a__space__apps__challenge.jpeg" 
-},
+      title: "Getting started with AWS and Cloud Computing", 
+      issuer: "AWS Student Builder Group - University of Sindh", 
+      link: "/aws-cloud-cert.jpeg" 
+    },
+    { 
+      title: "Generative AI Mastermind", 
+      issuer: "Outskill", 
+      link: "/outskill-genai-cert.jpeg" 
+    },
+    { 
+      title: "NASA Space Apps Challenge 2026 - Galactic Problem Solver", 
+      issuer: "NASA", 
+      link: "/certificate_azfarqa_2026__n_a_s_a__space__apps__challenge.jpeg" 
+    },
+    // ... keep the rest of your certificates below
+
     { title: "Introduction to Modern AI", issuer: "Cisco", link: "https://www.credly.com/badges/097946b0-ee0c-46ed-9dce-650fefb70897/linked_in_profile" },
     { title: "Climate Action: Tackling the Climate Crisis for a Better World", issuer: "University of Leeds", link: "https://www.futurelearn.com/certificates/9gu6azw" },
     { title: "Web Development Internship", issuer: "Zynvex Solutions", link: "https://www.zynvexcert.live/verify/ZYNVEX-CERT-1911" },
